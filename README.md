@@ -1,7 +1,3 @@
-# Creador del Proyecto y Cine y telivison 
-
-Este proyecto Fue creado por Daniel Nomelin Oviedo
-
 # Mapa Interactivo de la Localidad de Kenedy
 
 Este proyecto es un software interactivo que presenta un mapa detallado de la localidad de Kenedy, enfocándose en su rico patrimonio cultural. El mapa incluye puntos destacados de patrimonio, imágenes ilustrativas, y una narrativa histórica que explora la historia de Kenedy y sus elementos patrimoniales más significativos.
@@ -50,7 +46,7 @@ Este proyecto fue creado por **Daniel Nomelin Oviedo**.
 
 ## Contribuciones
 
-Si deseas contribuir al proyecto, por favor abre un issue o envía un pull request en el repositorio de GitHub.
+Cine y television
 
 ## Licencia
 
