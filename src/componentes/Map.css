@@ -1,0 +1,262 @@
+.map-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f2efe4; /* Beige extraído para fundirse con el fondo del croquis */
+}
+
+.map-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.map-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  /* El croquis tiene fondo transparente o claro. 
+     Esto asegura que llene la pantalla sin verse repetido. */
+}
+
+.map-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Let clicks pass through to markers */
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Permitir clicks en los controles de encima */
+.map-overlay > * {
+  pointer-events: auto;
+}
+
+/* Header de la parte superior */
+.map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.map-title-container {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 10px 20px;
+  backdrop-filter: blur(5px);
+  border-radius: 8px;
+}
+
+.map-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 4.5rem;
+  color: #111;
+  font-weight: 700;
+  line-height: 1;
+  margin: 0;
+  letter-spacing: -1px;
+}
+
+.map-subtitle {
+  font-size: 0.75rem;
+  color: #444;
+  letter-spacing: 3px;
+  margin-top: 5px;
+  font-weight: 600;
+}
+
+/* Estilo Sello Postal para el Botón de Info */
+.icon-btn.dark-btn {
+  background-color: transparent;
+  color: #362f2d;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.8rem;
+  font-style: normal;
+  font-weight: bold;
+  cursor: pointer;
+  
+  /* Borde de tinta de sello */
+  border: 2px solid #362f2d;
+  box-shadow: inset 0 0 0 1px rgba(54, 47, 45, 0.3), 0 0 0 1px rgba(54, 47, 45, 0.3);
+  transform: rotate(15deg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+/* Anillo interno punteado del sello */
+.icon-btn.dark-btn::after {
+  content: '';
+  position: absolute;
+  top: 4px; 
+  left: 4px; 
+  right: 4px; 
+  bottom: 4px;
+  border-radius: 50%;
+  border: 1px dashed #362f2d;
+  pointer-events: none;
+}
+
+.icon-btn.dark-btn:hover {
+  transform: rotate(0deg) scale(1.1);
+  color: #d1562b;
+  border-color: #d1562b;
+  box-shadow: inset 0 0 0 1px rgba(209, 86, 43, 0.3), 0 0 6px rgba(209, 86, 43, 0.3);
+}
+
+.icon-btn.dark-btn:hover::after {
+  border-color: #d1562b;
+}
+
+/* Contenedor inferior flex */
+.map-bottom-container {
+  display: flex;
+  justify-content: flex-end; /* Alinea los elementos al lado derecho */
+  align-items: flex-end;
+}
+
+/* Leyenda */
+.map-legend {
+  background: #fffafa;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  width: 220px;
+}
+
+.map-legend h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.map-legend ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.map-legend li {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.color-interest { background-color: #dd713b; }
+.color-water { background-color: #92bce2; }
+.color-green { background-color: #aed5a6; }
+.color-road { background-color: #d1c8bd; }
+
+/* Filtros Centro */
+.map-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.filter-pill {
+  background: #fffdfb;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #111;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  transition: transform 0.2s;
+}
+
+.filter-pill:hover {
+  transform: translateY(-2px);
+}
+
+.filter-icon {
+  color: #888;
+  font-size: 0.7rem;
+}
+
+/* Bloque Stats Derecho - Estilo Etiqueta Antigua / Ledger */
+.map-stats-box {
+  background-color: transparent;
+  border: 2px solid #362f2d;
+  border-radius: 4px;
+  padding: 15px 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 180px;
+  /* Sombra sólida desfasada típica de lo retro */
+  box-shadow: 4px 4px 0px rgba(54, 47, 45, 0.15);
+  transform: rotate(-2deg);
+  position: relative;
+}
+
+/* Decoración con líneas internas para que parezca una etiqueta */
+.map-stats-box::before {
+  content: '';
+  position: absolute;
+  top: 4px; left: 4px; right: 4px; bottom: 4px;
+  border: 1px dashed #362f2d;
+  pointer-events: none;
+  border-radius: 2px;
+}
+
+.stats-label {
+  color: #362f2d;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  border-bottom: 1.5px solid #362f2d;
+  padding-bottom: 4px;
+  z-index: 2;
+  text-align: center;
+  width: 100%;
+}
+
+.stats-number {
+  color: #d1562b;
+  font-family: 'Playfair Display', serif;
+  font-size: 4.5rem;
+  font-weight: 700;
+  line-height: 1;
+  font-style: italic;
+  z-index: 2;
+  text-shadow: 1px 1px 0px rgba(54, 47, 45, 0.1);
+  text-align: center;
+  width: 100%;
+}

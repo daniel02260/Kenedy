@@ -1,0 +1,80 @@
+.info-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(229, 229, 206, 0.85); /* Tono beige semi-transparente */
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* Por encima de todo */
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.info-modal-content {
+  background-color: #fffdfb;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 16px;
+  padding: 40px;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+  text-align: center;
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+.info-close-button {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.info-close-button:hover {
+  color: #111;
+}
+
+.info-modal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.uni-logo {
+  width: 180px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.info-modal-body h2 {
+  font-family: 'Playfair Display', serif;
+  color: #111;
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.info-modal-body p {
+  color: #444;
+  line-height: 1.6;
+  font-size: 1rem;
+  margin: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

@@ -1,0 +1,367 @@
+/* =========================================
+   NUEVO REDISEÑO: VISTA COMPLETA (FULLSCREEN SCROLL)
+   ========================================= */
+
+   .fullscreen-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: #111; /* Fondo oscuro detrás por si acaso */
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    animation: fadeInOverlay 0.4s ease forwards;
+  }
+  
+  @keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .fullscreen-scroll-container {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    position: relative;
+  }
+  
+  .sticky-close-button {
+    position: fixed; 
+    top: 25px; right: 35px;
+    background: #fdfaf6;
+    border: 2px dashed #a87b51;
+    border-radius: 50%; /* Sello postal circular */
+    color: #362f2d;
+    width: 55px; height: 55px;
+    font-size: 2rem;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    display: flex; justify-content: center; align-items: center;
+    z-index: 4000; 
+    cursor: pointer;
+    box-shadow: 2px 4px 10px rgba(0,0,0,0.3); /* Da la sensación de estar pegado pero flotando */
+    transition: all 0.2s ease;
+  }
+  
+  .sticky-close-button:hover {
+    background: #a87b51;
+    color: #fdfaf6;
+    transform: rotate(-10deg) scale(1.05); /* Rota como un sello físico */
+  }
+  
+  /* --- 1. SECCIÓN DE PORTADA / HERO --- */
+  .fs-hero-section {
+    width: 100vw;
+    height: 100vh; /* Ocupa el 100% de la pantalla inicialmente */
+    position: relative;
+    display: flex;
+    align-items: flex-end; /* Mantiene el texto abajo */
+    overflow: hidden;
+  }
+  
+  .fs-hero-bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: sepia(0.25) brightness(0.85); /* Estilo antiguo/cinematográfico */
+    z-index: -1;
+    /* Un ligero efecto parallax si el navegador lo soporta bien combinado con el scroll */
+    transform: translateZ(0); 
+  }
+  
+  .fs-hero-bg-fallback {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: #362f2d;
+    z-index: -1;
+  }
+  
+  .fs-hero-gradient {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    /* Un degradado oscuro potente para asegurar que el texto blanco se lea perfecto sobre cualquier foto */
+    background: linear-gradient(to top, rgba(20, 15, 12, 1) 0%, rgba(20, 15, 12, 0.5) 40%, transparent 100%);
+    pointer-events: none;
+  }
+  
+  .fs-hero-content {
+    position: relative;
+    z-index: 10;
+    padding: 60px 40px;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    animation: slideUpFade 0.8s ease forwards;
+  }
+  
+  @keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .fs-category-pill {
+    background: #d1562b;
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    display: inline-block;
+  }
+  
+  .fs-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 4.5rem;
+    color: #fff;
+    margin: 0 0 50px 0;
+    text-shadow: 0 5px 20px rgba(0,0,0,0.6);
+    line-height: 1.1;
+  }
+  
+  .scroll-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    opacity: 0.6;
+    animation: bounce 2s infinite;
+  }
+  
+  .scroll-indicator span {
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  
+  .arrow-down {
+    font-size: 1.5rem;
+  }
+  
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(12px); }
+    60% { transform: translateY(6px); }
+  }
+  
+  /* --- 2. CUERPO DEL DOCUMENTO (Secciones Verticales) --- */
+  .fs-document-body {
+    background-color: #fffdfa; /* Papel pergamino claro clásico de nuestra estética */
+    width: 100%;
+    position: relative;
+    z-index: 20; /* Asegura que pase por encima del fondo al hacer scroll */
+  }
+
+  /* BARRA DE NAVEGACIÓN ANCLADA (STICKY NAV) */
+  .fs-sticky-nav {
+    position: sticky;
+    top: 0;
+    background: rgba(255, 253, 250, 0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 2px solid #362f2d;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 30px;
+    padding: 15px 20px;
+    z-index: 100;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  }
+
+  .fs-sticky-nav button {
+    background: transparent;
+    border: none;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    font-size: 0.95rem;
+    color: #5c4e46;
+    cursor: pointer;
+    transition: color 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 5px;
+  }
+
+  .fs-sticky-nav button:hover,
+  .fs-sticky-nav button.active {
+    color: #d1562b;
+    border-bottom: 2px solid #d1562b;
+  }
+  
+  .fs-section-wrapper {
+    min-height: 40vh; /* Para que al cambiar tab no parpadee feo la pantalla */
+  }
+
+  .fs-section {
+    padding: 60px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .fade-in {
+    animation: fadeInTab 0.4s ease;
+  }
+
+  @keyframes fadeInTab {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .no-media-text {
+    font-family: 'Courier New', Courier, monospace;
+    font-style: italic;
+    color: #8c7e73;
+    padding: 30px;
+    text-align: center;
+    background: rgba(168, 123, 81, 0.05);
+    border: 1px dashed rgba(168, 123, 81, 0.3);
+    border-radius: 8px;
+  }
+  
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: #d1562b;
+    margin-top: 0;
+    margin-bottom: 35px;
+    text-align: left;
+  }
+  
+  /* Sección Historia */
+  .fs-description {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.25rem;
+    line-height: 1.8;
+    color: #4a3f38;
+    margin-bottom: 40px;
+  }
+  
+  .fs-location-data {
+    background: rgba(209, 86, 43, 0.05);
+    padding: 18px 25px;
+    border-left: 5px solid #d1562b;
+    border-radius: 0 8px 8px 0;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    color: #d1562b;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  /* Sección Carrusel */
+  .fs-carousel {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 30px;
+    scroll-snap-type: x mandatory; /* Snap magnético para las fotos */
+  }
+  
+  .carousel-item {
+    min-width: 85%;
+    scroll-snap-align: center;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .carousel-item img {
+    width: 100%;
+    height: 450px;
+    object-fit: cover;
+    border-radius: 16px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+  }
+  
+  .carousel-caption {
+    font-family: 'Courier New', Courier, monospace;
+    margin-top: 15px;
+    font-size: 0.95rem;
+    color: #8c7e73;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  /* Sección Videos */
+  .fs-video-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  
+  .video-card video {
+    width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    background-color: #111;
+  }
+  
+  .media-card-title {
+    font-family: 'Inter', sans-serif;
+    margin-top: 15px;
+    margin-bottom: 0;
+    color: #4a3f38;
+    font-size: 1.15rem;
+  }
+  
+  /* Sección Podcasts */
+  .fs-podcast-list {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+  
+  .podcast-card {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    background: #fff;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    border: 1px solid rgba(168, 123, 81, 0.2);
+  }
+  
+  .podcast-icon {
+    font-size: 3.5rem;
+  }
+  
+  .podcast-player {
+    flex: 1;
+  }
+  
+  .podcast-player audio {
+    width: 100%;
+    margin-top: 15px;
+  }
+  
+  /* Sección Comentarios */
+  .fs-comments-wrapper {
+    background: #fff;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.06);
+    border: 1px solid rgba(168, 123, 81, 0.1);
+  }
+  
+  /* Footer estético */
+  .fs-footer {
+    text-align: center;
+    padding: 80px 20px 60px 20px;
+    font-family: 'Courier New', Courier, monospace;
+    color: #a39589;
+    letter-spacing: 3px;
+    font-size: 1.1rem;
+    background-color: #fffdfa;
+  }
+  
