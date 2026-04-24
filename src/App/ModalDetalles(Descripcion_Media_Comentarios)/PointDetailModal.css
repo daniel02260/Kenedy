@@ -1,0 +1,1029 @@
+/* =========================================
+   NUEVO REDISEÑO: VISTA COMPLETA (FULLSCREEN SCROLL)
+   ========================================= */
+
+.fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: transparent;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  animation: overlayBgFade 0.6s ease forwards;
+}
+
+@keyframes overlayBgFade {
+  0% { background-color: transparent; }
+  70% { background-color: rgba(17, 17, 17, 0.8); }
+  100% { background-color: #111; }
+}
+
+/* EFECTO MÁGICO DE MORPHING */
+/* Pasa exactamente del tamaño de la foto miniatura a cubrir la pantalla */
+.hero-morph-image {
+  position: absolute;
+  top: var(--origin-y, 50%);
+  left: var(--origin-x, 50%);
+  width: 95px; /* Tamaño exacto del botón PointMarker */
+  height: 95px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%); /* Centrado sobre el puntero/botón */
+  background-size: cover;
+  background-position: center;
+  z-index: 10;
+  animation: morphExplode 0.6s cubic-bezier(0.85, 0, 0.15, 1) forwards;
+}
+
+@keyframes morphExplode {
+  0% {
+    top: var(--origin-y, 50%);
+    left: var(--origin-x, 50%);
+    width: 95px;
+    height: 95px;
+    border-radius: 50%;
+  }
+  100% {
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 0%;
+  }
+}
+
+.fullscreen-content-fadein {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 20;
+  opacity: 0;
+  animation: fadeInFast 0.4s ease 0.3s forwards; /* Entra cuando casi ha estallado el globo */
+}
+
+@keyframes fadeInFast {
+  to { opacity: 1; }
+}
+
+.fullscreen-scroll-container {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  position: relative;
+}
+
+.sticky-close-button {
+  position: fixed;
+  top: 25px;
+  right: 35px;
+  background: #fdfaf6;
+  border: 2px dashed #a87b51;
+  border-radius: 50%;
+  /* Sello postal circular */
+  color: #362f2d;
+  width: 55px;
+  height: 55px;
+  font-size: 2rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 4000;
+  cursor: pointer;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.3);
+  /* Da la sensación de estar pegado pero flotando */
+  transition: all 0.2s ease;
+}
+
+.sticky-close-button:hover {
+  background: #a87b51;
+  color: #fdfaf6;
+  transform: rotate(-10deg) scale(1.05);
+  /* Rota como un sello físico */
+}
+
+/* --- 1. SECCIÓN DE PORTADA / HERO --- */
+.fs-hero-section {
+  width: 100%;
+  height: 100vh;
+  /* Ocupa el 100% de la pantalla inicialmente */
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  /* Mantiene el texto abajo */
+  overflow: hidden;
+}
+
+.fs-hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.25) brightness(0.85);
+  /* Estilo antiguo/cinematográfico */
+  z-index: -1;
+  /* Un ligero efecto parallax si el navegador lo soporta bien combinado con el scroll */
+  transform: translateZ(0);
+}
+
+.fs-hero-bg-fallback {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #362f2d;
+  z-index: -1;
+}
+
+.fs-hero-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Un degradado oscuro potente para asegurar que el texto blanco se lea perfecto sobre cualquier foto */
+  background: linear-gradient(to top, rgba(20, 15, 12, 1) 0%, rgba(20, 15, 12, 0.5) 40%, transparent 100%);
+  pointer-events: none;
+}
+
+.fs-hero-content {
+  position: relative;
+  z-index: 10;
+  padding: 60px 40px;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  animation: slideUpFade 0.8s ease forwards;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fs-category-pill {
+  background: #d1562b;
+  color: #fff;
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.fs-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 4.5rem;
+  color: #fff;
+  margin: 0 0 50px 0;
+  text-shadow: 0 5px 20px rgba(0, 0, 0, 0.6);
+  line-height: 1.1;
+}
+
+.scroll-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  opacity: 0.6;
+  animation: bounce 2s infinite;
+}
+
+.scroll-indicator span {
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.arrow-down {
+  font-size: 1.5rem;
+}
+
+@keyframes bounce {
+
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+
+  40% {
+    transform: translateY(12px);
+  }
+
+  60% {
+    transform: translateY(6px);
+  }
+}
+
+/* --- 2. CUERPO DEL DOCUMENTO (Secciones Verticales) --- */
+.fs-document-body {
+  background-color: #fffdfa;
+  /* Papel pergamino claro clásico de nuestra estética */
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  z-index: 20;
+  /* Asegura que pase por encima del fondo al hacer scroll */
+}
+
+/* BARRA DE NAVEGACIÓN ANCLADA (STICKY NAV) */
+.fs-sticky-nav {
+  position: sticky;
+  top: 0;
+  background: rgba(255, 253, 250, 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 2px solid #362f2d;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30px;
+  padding: 15px 20px;
+  z-index: 100;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.fs-sticky-nav button {
+  background: transparent;
+  border: none;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  font-size: 0.95rem;
+  color: #5c4e46;
+  cursor: pointer;
+  transition: color 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 5px;
+}
+
+.fs-sticky-nav button:hover,
+.fs-sticky-nav button.active {
+  color: #d1562b;
+  border-bottom: 2px solid #d1562b;
+}
+
+.fs-section-wrapper {
+  min-height: 40vh;
+  /* Para que al cambiar tab no parpadee feo la pantalla */
+}
+
+.fs-section {
+  padding: 60px 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.fade-in {
+  animation: fadeInTab 0.4s ease;
+}
+
+@keyframes fadeInTab {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.no-media-text {
+  font-family: 'Courier New', Courier, monospace;
+  font-style: italic;
+  color: #8c7e73;
+  padding: 30px;
+  text-align: center;
+  background: rgba(168, 123, 81, 0.05);
+  border: 1px dashed rgba(168, 123, 81, 0.3);
+  border-radius: 8px;
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  color: #d1562b;
+  margin-top: 0;
+  margin-bottom: 35px;
+  text-align: left;
+}
+
+/* Sección Historia */
+.fs-description {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  line-height: 1.8;
+  color: #4a3f38;
+  margin-bottom: 40px;
+}
+
+.fs-location-data {
+  background: rgba(209, 86, 43, 0.05);
+  padding: 18px 25px;
+  border-left: 5px solid #d1562b;
+  border-radius: 0 8px 8px 0;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1rem;
+  color: #d1562b;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Sección Carrusel */
+.fs-carousel {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 30px;
+  scroll-snap-type: x mandatory;
+  /* Snap magnético para las fotos */
+}
+
+.carousel-item {
+  min-width: 85%;
+  scroll-snap-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.carousel-item img {
+  width: 100%;
+  height: 450px;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-caption {
+  font-family: 'Courier New', Courier, monospace;
+  margin-top: 15px;
+  font-size: 0.95rem;
+  color: #8c7e73;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Sección Videos */
+.fs-video-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+}
+
+/* Vintage TV Video Player */
+.vintage-tv-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.vintage-tv-frame {
+  background: #5c3a21; /* Dark wood color */
+  border-radius: 20px; /* Slight rounding for TV body */
+  padding: 30px 20px 20px 20px;
+  box-shadow: 
+    inset 0 0 15px rgba(0,0,0,0.8),
+    0 20px 40px rgba(0,0,0,0.4),
+    0 0 0 5px #3a2212; /* Outer dark edge */
+  border: 2px solid #85532f; /* Wood highlight */
+  width: 100%;
+  max-width: 800px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Wood grain texture effect */
+.vintage-tv-frame::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(0,0,0,0.05) 10px,
+    rgba(0,0,0,0.05) 20px
+  );
+  border-radius: 18px;
+  pointer-events: none;
+}
+
+.vintage-tv-screen-container {
+  position: relative;
+  background: #111;
+  border-radius: 30px 30px 40px 40px / 20px 20px 30px 30px; /* Curved screen bulge */
+  padding: 15px; /* Bezel */
+  box-shadow: 
+    inset 0 0 20px #000, 
+    0 0 10px rgba(0,0,0,0.8);
+  border: 4px solid #222;
+  overflow: hidden;
+}
+
+.vintage-tv-video {
+  width: 100%;
+  display: block;
+  border-radius: 15px 15px 25px 25px / 10px 10px 20px 20px; /* Curved screen video */
+  filter: sepia(0.4) contrast(1.2) brightness(0.9) saturate(0.8); /* Vintage colors */
+  background-color: #000;
+  position: relative;
+  z-index: 1;
+}
+
+.vintage-tv-crt-overlay {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
+  border-radius: 15px 15px 25px 25px / 10px 10px 20px 20px;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  background-size: 100% 4px, 3px 100%;
+  box-shadow: inset 0 0 80px rgba(0,0,0,0.9); /* Vignette */
+  pointer-events: none; /* Let clicks pass through to video controls */
+  z-index: 2;
+}
+
+/* CRT Flicker animation */
+.vintage-tv-screen-container::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.03);
+  opacity: 0;
+  z-index: 2;
+  pointer-events: none;
+  animation: crtFlicker 0.15s infinite;
+}
+
+@keyframes crtFlicker {
+  0% { opacity: 0.02; }
+  50% { opacity: 0.05; }
+  100% { opacity: 0.02; }
+}
+
+.vintage-tv-knobs {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 20px;
+  gap: 15px;
+}
+
+.knob {
+  width: 35px;
+  height: 35px;
+  background: radial-gradient(circle at 30% 30%, #666, #111);
+  border-radius: 50%;
+  border: 4px solid #222;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.5), inset -1px -1px 3px rgba(255,255,255,0.2);
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.knob:active {
+  transform: rotate(30deg);
+}
+
+.knob-1::after, .knob-2::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  width: 4px;
+  height: 12px;
+  background: #aaa;
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+
+.knob-2::after {
+  transform: translateX(-50%) rotate(45deg);
+  transform-origin: bottom center;
+}
+
+.speaker-grill {
+  display: flex;
+  gap: 6px;
+  margin-right: auto;
+  margin-left: 15px;
+}
+
+.speaker-grill span {
+  width: 6px;
+  height: 35px;
+  background: #222;
+  border-radius: 3px;
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.9), 1px 1px 0 rgba(255,255,255,0.1);
+}
+
+.media-card-title {
+  font-family: 'Inter', sans-serif;
+  margin-top: 15px;
+  margin-bottom: 0;
+  color: #4a3f38;
+  font-size: 1.15rem;
+}
+
+/* ========================================= */
+/* CASSETTE PLAYER (PODCASTS)                */
+/* ========================================= */
+
+.fs-podcast-list {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  align-items: center;
+}
+
+.cassette-component {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.cassette-tape {
+  width: 100%;
+  max-width: 450px;
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 
+    inset 0 2px 5px rgba(255,255,255,0.2),
+    inset 0 -2px 5px rgba(0,0,0,0.5),
+    0 10px 20px rgba(0,0,0,0.4);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #111;
+  transition: transform 0.3s;
+}
+
+.cassette-tape:hover {
+  transform: translateY(-2px);
+}
+
+.cassette-tape::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.05) 2px,
+    rgba(0,0,0,0.05) 4px
+  );
+  pointer-events: none;
+  border-radius: 12px;
+}
+
+/* Screws */
+.cassette-screw {
+  width: 10px;
+  height: 10px;
+  background: #555;
+  border-radius: 50%;
+  position: absolute;
+  box-shadow: inset -1px -1px 2px rgba(0,0,0,0.8), inset 1px 1px 2px rgba(255,255,255,0.4);
+  z-index: 10;
+}
+.cassette-screw::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 15%; right: 15%; height: 1px;
+  background: #222;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.screw-tl { top: 12px; left: 12px; }
+.screw-tr { top: 12px; right: 12px; }
+.screw-bl { bottom: 12px; left: 12px; }
+.screw-br { bottom: 12px; right: 12px; }
+
+/* Sticker */
+.cassette-sticker {
+  background: #f4e8d3; /* Vintage paper */
+  border-radius: 6px;
+  margin: 10px;
+  padding: 15px;
+  border: 1px solid #dcd0bf;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+  background-image: repeating-linear-gradient(transparent, transparent 19px, rgba(0,0,0,0.05) 20px);
+}
+
+.cassette-title-bar {
+  width: 100%;
+  background: #c34b35; /* Vintage red */
+  color: white;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  padding: 4px 10px;
+  display: flex;
+  justify-content: space-between;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.cassette-title {
+  font-family: 'Marker Felt', 'Comic Sans MS', cursive; /* Handwritten look */
+  color: #2a2a2a;
+  margin: 0 0 20px 0;
+  font-size: 1.5rem;
+  text-align: center;
+  transform: rotate(-2deg);
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+}
+
+/* Window & Reels */
+.cassette-window {
+  width: 85%;
+  height: 60px;
+  background: rgba(0,0,0,0.85);
+  border: 4px solid #bba38a;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.9);
+}
+
+.cassette-window::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 0; right: 0; height: 1px;
+  background: rgba(255,255,255,0.1);
+  transform: translateY(-50%);
+}
+
+.cassette-tape-line {
+  position: absolute;
+  top: 50%; left: 20%; right: 20%;
+  height: 25px;
+  transform: translateY(-50%);
+  background: rgba(30, 20, 10, 0.95); /* Brown tape color */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.6);
+  z-index: 1;
+}
+
+.cassette-reel {
+  width: 45px;
+  height: 45px;
+  background: #ddd;
+  border-radius: 50%;
+  position: relative;
+  border: 4px solid #222;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  box-shadow: 0 0 0 15px rgba(30,20,10,0.9); /* Tape wrapped around reel */
+}
+
+.cassette-reel-right {
+  box-shadow: 0 0 0 5px rgba(30,20,10,0.9); /* Less tape on right initially */
+}
+
+/* Playing animation modifies tape sizes */
+.playing .cassette-reel-left {
+  animation: reelTapeShrink 60s linear forwards, spin 2.5s linear infinite;
+}
+
+.playing .cassette-reel-right {
+  animation: reelTapeGrow 60s linear forwards, spin 2.5s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes reelTapeShrink {
+  100% { box-shadow: 0 0 0 5px rgba(30,20,10,0.9); }
+}
+
+@keyframes reelTapeGrow {
+  100% { box-shadow: 0 0 0 15px rgba(30,20,10,0.9); }
+}
+
+.reel-center {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.reel-teeth {
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(#fff 0deg 45deg, transparent 45deg 90deg, #fff 90deg 135deg, transparent 135deg 180deg, #fff 180deg 225deg, transparent 225deg 270deg, #fff 270deg 315deg, transparent 315deg 360deg);
+  border-radius: 50%;
+  opacity: 0.8;
+}
+
+/* Bottom Trap */
+.cassette-bottom {
+  margin-top: 15px;
+  height: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 40px;
+  position: relative;
+}
+
+.cassette-bottom::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 20%;
+  right: 20%;
+  height: 25px;
+  border-top: 3px solid #111;
+  border-radius: 10px 10px 0 0;
+  background: #252525;
+}
+
+.trap-hole {
+  width: 12px;
+  height: 12px;
+  background: #111;
+  border-radius: 50%;
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.8);
+  z-index: 1;
+  margin-bottom: 5px;
+}
+
+/* VINTAGE DECK CONTROLS */
+.deck-controls-container {
+  margin-top: 30px;
+  width: 100%;
+  max-width: 450px;
+  background: #333;
+  padding: 15px 25px;
+  border-radius: 8px;
+  border: 2px solid #111;
+  box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), 0 10px 20px rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.deck-progress-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.deck-time {
+  font-family: 'Courier New', Courier, monospace;
+  color: #a3f7bf; /* Retro digital green */
+  font-size: 0.9rem;
+  background: #111;
+  padding: 4px 8px;
+  border-radius: 4px;
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.9);
+  min-width: 55px;
+  text-align: center;
+  border: 1px solid #222;
+}
+
+.deck-slider {
+  flex-grow: 1;
+  -webkit-appearance: none;
+  height: 8px;
+  background: #1a1a1a;
+  border-radius: 4px;
+  box-shadow: inset 1px 1px 4px rgba(0,0,0,0.8);
+  outline: none;
+}
+
+.deck-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 24px;
+  background: linear-gradient(to right, #ccc, #eee, #ccc);
+  border-radius: 2px;
+  cursor: pointer;
+  border: 1px solid #444;
+  box-shadow: 1px 2px 3px rgba(0,0,0,0.6);
+}
+
+.deck-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.deck-btn {
+  background: linear-gradient(to bottom, #ececec, #a0a0a0);
+  border: 2px solid #222;
+  border-radius: 4px;
+  padding: 8px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  box-shadow: inset 1px 1px 2px rgba(255,255,255,0.8), 0 4px 0 #555, 0 6px 8px rgba(0,0,0,0.5);
+  transition: all 0.1s;
+}
+
+.deck-btn:active, .deck-btn.active {
+  transform: translateY(4px);
+  box-shadow: inset 1px 1px 5px rgba(0,0,0,0.6), 0 0 0 #555, 0 2px 3px rgba(0,0,0,0.5);
+  background: linear-gradient(to bottom, #a0a0a0, #888);
+}
+
+.deck-btn-icon {
+  font-size: 1.4rem;
+  color: #111;
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+}
+
+.deck-btn-label {
+  font-family: 'Arial Black', Arial, sans-serif;
+  font-size: 0.65rem;
+  color: #333;
+  letter-spacing: 1px;
+}
+
+.deck-lower-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #444;
+  padding-top: 15px;
+  margin-top: 5px;
+}
+
+.deck-mixer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #252525;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #111;
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.8);
+}
+
+.mixer-icon {
+  font-size: 1rem;
+  color: #888;
+}
+
+.volume-slider {
+  width: 80px;
+  height: 4px;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  width: 12px;
+  height: 16px;
+  background: #a0a0a0;
+  border-radius: 2px;
+}
+
+/* Sección Comentarios */
+.fs-comments-wrapper {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(168, 123, 81, 0.1);
+}
+
+/* Footer estético */
+.fs-footer {
+  text-align: center;
+  padding: 80px 20px 60px 20px;
+  font-family: 'Courier New', Courier, monospace;
+  color: #a39589;
+  letter-spacing: 3px;
+  font-size: 1.1rem;
+  background-color: #fffdfa;
+}
+
+/* Lightbox Styles - Premium Visually Striking */
+.lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(26, 20, 18, 0.75);
+  /* Tinte oscuro cálido */
+  backdrop-filter: blur(15px);
+  /* Efecto vidrio esmerilado premium */
+  z-index: 5000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeInOverlay 0.4s ease forwards;
+  cursor: zoom-out;
+}
+
+.lightbox-image {
+  max-width: 85vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 4px;
+  /* Resplandor cálido y sombra profunda */
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7), 0 0 60px rgba(209, 86, 43, 0.15);
+  /* Efecto Fotografía Antigua / Polaroid */
+  border: 12px solid #fffdfa;
+  border-bottom-width: 45px;
+  background-color: #fffdfa;
+  /* Por si la imagen tiene transparencias */
+  cursor: default;
+  /* Animación súper fluida y orgánica */
+  animation: elegantZoom 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes elegantZoom {
+  0% {
+    transform: scale(0.8) translateY(50px) rotate(-3deg);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1) translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 35px;
+  right: 45px;
+  background: rgba(255, 253, 250, 0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 253, 250, 0.2);
+  border-radius: 50%;
+  color: #fffdfa;
+  width: 55px;
+  height: 55px;
+  font-size: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: Arial, sans-serif;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.lightbox-close:hover {
+  background: #d1562b;
+  color: #fff;
+  transform: rotate(90deg) scale(1.1);
+  border-color: #d1562b;
+  box-shadow: 0 10px 25px rgba(209, 86, 43, 0.4);
+}

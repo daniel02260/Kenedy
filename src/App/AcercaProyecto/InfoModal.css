@@ -1,0 +1,149 @@
+.info-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(44, 32, 24, 0.7); /* Oscuro como tinta y la viñeta */
+  backdrop-filter: blur(6px) sepia(0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1);
+}
+
+.info-modal-content {
+  background-color: #ebd6be; /* Textura de papel antiguo cartón */
+  width: 90%;
+  max-width: 550px;
+  /* Radios irregulares para parecer cortado a mano/molde, igual al sidebar */
+  border-radius: 2% 4% 3% 5% / 4% 2% 5% 3%;
+  border: 1.5px solid #4a3827; /* Borde interior de tinta oscura */
+  padding: 45px 50px;
+  position: relative;
+  /* Sombreado de desgaste intenso */
+  box-shadow: 10px 15px 35px rgba(0,0,0,0.6), inset 0 0 60px rgba(105, 61, 22, 0.25);
+  text-align: center;
+  animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Costura punteada falsa de documento histórico (Stitch) */
+.info-modal-content::before {
+  content: '';
+  position: absolute;
+  top: 8px; left: 8px; right: 8px; bottom: 8px;
+  border: 1.5px dashed rgba(74, 56, 39, 0.5);
+  border-radius: 4% 2% 5% 3% / 2% 5% 3% 4%; /* Irregular invertido al borde exterior */
+  pointer-events: none;
+}
+
+.info-close-button {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  background: transparent;
+  border: 1.5px solid #4a3827;
+  border-radius: 50%; /* Sello circular */
+  width: 35px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 26px;
+  line-height: 1;
+  color: #2c2018; /* Tinta oscura */
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 10;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2), 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.info-close-button:hover {
+  background-color: rgba(74, 56, 39, 0.1);
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3), 4px 4px 6px rgba(0,0,0,0.3);
+}
+
+.info-modal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  position: relative;
+  z-index: 2;
+}
+
+.uni-logo {
+  width: 190px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 5px;
+  /* Mezclar colores para fundirlo con el papel, borrando blancos cuadrados */
+  mix-blend-mode: multiply; 
+  /* Aplicar colores avejentados de imprenta */
+  filter: sepia(0.3) contrast(1.15) brightness(0.85); 
+}
+
+.info-modal-body h2 {
+  font-family: 'Playfair Display', serif;
+  color: #2c2018; /* Casi negro tinta */
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 800;
+  border-bottom: 2px solid rgba(74, 56, 39, 0.6); /* Bolígrafo subrayado */
+  padding-bottom: 10px;
+  letter-spacing: -0.5px;
+  transform: rotate(-0.5deg);
+}
+
+.info-modal-body p {
+  font-family: 'Playfair Display', serif;
+  color: #2c2018; /* Marrón oscuro muy sólido */
+  line-height: 1.6;
+  font-size: 1.15rem;
+  font-weight: 500;
+  margin: 0;
+  text-align: justify; /* Apariencia de columna de libro antiguo */
+  text-align-last: center;
+}
+
+.info-modal-body p strong {
+  font-weight: 800;
+  color: #1a120e;
+  font-size: 1.25rem;
+}
+
+/* Enlaces incrustados de la universidad */
+.uni-link-logo {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.uni-link-logo:hover {
+  transform: scale(1.05); /* Breve aumento al tratar de tocar el logo */
+}
+
+.uni-link-text {
+  color: #2c2018;
+  text-decoration: none;
+  border-bottom: 1.5px solid rgba(74, 56, 39, 0.4);
+  transition: border-color 0.2s, background-color 0.2s;
+  padding-bottom: 2px;
+}
+
+.uni-link-text:hover {
+  background-color: rgba(74, 56, 39, 0.1);
+  border-bottom-color: rgba(74, 56, 39, 1);
+  border-radius: 2px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}

@@ -9,6 +9,7 @@ interface AppContextType {
   points: PointOfInterest[];
   addComment: (pointId: string, comment: Comment) => void;
   deleteComment: (pointId: string, commentId: string) => void;
+  likeComment: (pointId: string, commentId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -62,8 +63,24 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
+  const likeComment = (pointId: string, commentId: string) => {
+    setPoints(prevPoints => 
+      prevPoints.map(point => {
+        if (point.id === pointId) {
+          return {
+            ...point,
+            comments: point.comments.map(c => 
+              c.id === commentId ? { ...c, likes: (c.likes || 0) + 1 } : c
+            )
+          };
+        }
+        return point;
+      })
+    );
+  };
+
   return (
-    <AppContext.Provider value={{ isAdmin, setIsAdmin, points, addComment, deleteComment }}>
+    <AppContext.Provider value={{ isAdmin, setIsAdmin, points, addComment, deleteComment, likeComment }}>
       {children}
     </AppContext.Provider>
   );

@@ -1,6 +1,6 @@
 import { AppProvider } from './context/AppContext';
-import Navbar from './componentes/Navbar';
-import Map from './componentes/Map';
+import Navbar from '../Navar/Navbar';
+import Map from './App/Mapakenedy/Map';
 import './index.css';
 
 const App = () => {

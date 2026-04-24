@@ -1,0 +1,221 @@
+.point-marker-circle {
+  position: absolute;
+  width: 95px;
+  height: 95px;
+  border-radius: 50%;
+  /* Fondo transparente para que parezca tinta directamente en el papel */
+  background: transparent;
+  /* Anillo exterior del sello */
+  border: 2px solid #362f2d;
+  transform: translate(-50%, -50%) rotate(-8deg); /* Inclinación de sello de mano */
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  z-index: 50;
+  pointer-events: auto !important;
+  /* Un segundo anillo difuminado simulando sangrado de tinta */
+  box-shadow: inset 0 0 0 1px rgba(54, 47, 45, 0.3), 0 0 0 1px rgba(54, 47, 45, 0.3);
+  padding: 4px;
+}
+
+
+
+.point-marker-circle:hover,
+.point-marker-circle.highlighted {
+  transform: translate(-50%, -50%) scale(1.2) rotate(0deg);
+  border-color: #d1562b;
+  box-shadow: inset 0 0 0 1px rgba(209, 86, 43, 0.5), 0 0 15px rgba(209, 86, 43, 0.8);
+  z-index: 20;
+}
+
+.point-marker-circle.highlighted {
+  animation: pulseGlow 1.5s infinite alternate;
+}
+
+@keyframes pulseGlow {
+  from { box-shadow: 0 0 10px rgba(209, 86, 43, 0.6); }
+  to { box-shadow: 0 0 25px rgba(209, 86, 43, 1); }
+}
+
+.circle-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: transparent;
+  /* Anillo interior del sello */
+  border: 1.5px dashed #362f2d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+}
+
+.point-marker-circle:hover .circle-inner,
+.point-marker-circle.highlighted .circle-inner {
+  border-color: #d1562b;
+}
+
+.circle-text {
+  /* Fuente tipo máquina de escribir colonial para el sello */
+  font-family: 'Courier New', Courier, monospace; 
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #362f2d;
+  text-align: center;
+  text-transform: uppercase;
+  line-height: 1.1;
+  letter-spacing: 1px;
+}
+
+.point-marker-circle:hover .circle-text {
+  color: #d1562b;
+}
+
+.stamp-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  opacity: 0.9;
+  filter: sepia(0.3) contrast(1.1); /* Efecto vintage/papel fotográfico viejo */
+  transition: all 0.3s ease;
+}
+
+.point-marker-circle:hover .stamp-image,
+.point-marker-circle.highlighted .stamp-image {
+  opacity: 1;
+  filter: sepia(0) contrast(1);
+}
+
+/* Tooltip Estilo Etiqueta Antigua */
+.point-tooltip {
+  position: absolute;
+  top: calc(100% + 15px); /* Aparece abajo del mapa en vez de arriba */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ebd6be; /* Papel antiguo vintage cartón */
+  color: #2c2018; /* Tinta negra/marrón muy oscura */
+  border: 1px solid #4a3827; /* Borde oscuro tinta */
+  box-shadow: 3px 6px 15px rgba(0, 0, 0, 0.4), inset 0 0 35px rgba(139, 90, 43, 0.15); /* Sombra pesada */
+  padding: 16px 20px;
+  border-radius: 4px; /* Corte recto etiqueta dura */
+  width: 250px; /* Obliga a que se expanda hacia abajo para multilínea */
+  text-align: center;
+  white-space: normal; /* Ahora soporta párrafos */
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* Nuevo título de la etiqueta */
+.tooltip-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin: 0 0 6px 0;
+  line-height: 1.1;
+  color: #2c2018;
+}
+
+/* Línea separadora */
+.tooltip-divider {
+  width: 90%;
+  height: 1px;
+  background: rgba(74, 56, 39, 0.5);
+  margin: 0 auto 10px auto;
+}
+
+/* Descripción de la etiqueta */
+.tooltip-desc {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.3;
+  margin: 0;
+  color: #3b2516;
+}
+
+/* Costura punteada */
+.tooltip-stitch {
+  position: absolute;
+  top: 5px; left: 5px; right: 5px; bottom: 5px;
+  border: 1px dashed rgba(74, 56, 39, 0.6);
+  pointer-events: none;
+  border-radius: 2px;
+}
+
+/* Esquinas decorativas coloniales */
+.corner-decor {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border: 1.5px solid #4a3827;
+  pointer-events: none;
+}
+.corner-decor.top-left { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+.corner-decor.top-right { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+.corner-decor.bottom-left { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+.corner-decor.bottom-right { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+
+.point-marker-circle:hover .point-tooltip,
+.point-marker-circle.highlighted .point-tooltip {
+  opacity: 1;
+  visibility: visible;
+  top: calc(100% + 10px); /* Sube un poquito la etiqueta al aparecer */
+}
+
+/* Punta de flecha de papel (Apunta hacia arriba) */
+.point-tooltip::after {
+  content: '';
+  position: absolute;
+  top: -8px; /* Posicionado más arriba por el borde grueso */
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #4a3827; /* Borde inferior coloreado para apuntar arriba oscuro */
+}
+
+/* Fondo interior para la flecha */
+.point-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid #ebd6be; /* Mismo del papel y apuntando */
+  z-index: 10;
+}
+
+/* Modificadores para lanzar el Tooltip hacia arriba (Ej: Humedal el Burro) */
+.point-marker-circle.tooltip-up .point-tooltip {
+  top: auto;
+  bottom: calc(100% + 15px);
+}
+
+.point-marker-circle.tooltip-up:hover .point-tooltip,
+.point-marker-circle.tooltip-up.highlighted .point-tooltip {
+  top: auto;
+  bottom: calc(100% + 10px); /* El tooltip baja un poquito al aparecer */
+}
+
+/* Invertir la flecha para que apunte hacia abajo (para Humedal el Burro) */
+.point-marker-circle.tooltip-up .point-tooltip::after {
+  top: auto;
+  bottom: -8px;
+  border-bottom: none;
+  border-top: 8px solid #4a3827;
+}
+
+.point-marker-circle.tooltip-up .point-tooltip::before {
+  top: auto;
+  bottom: -6px;
+  border-bottom: none;
+  border-top: 7px solid #ebd6be;
+}

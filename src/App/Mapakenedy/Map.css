@@ -1,0 +1,540 @@
+.map-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f5eedf; /* Tono pergamino claro general */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Efecto Viñeta (Lámpara Teatral Antigua) por toda la pantalla */
+.map-vignette {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  box-shadow: inset 0 0 160px rgba(61, 41, 23, 0.4);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Wrapper que bloquea la deformación de coordenadas limitándose al tamaño puro de imagen 1536x1024 */
+.map-wrapper {
+  position: relative;
+  aspect-ratio: 1536 / 1024;
+  max-width: 100vw;
+  max-height: 100vh;
+  width: 100%; /* Forzamos su expansión hasta chocar con window con límites de aspecto */
+  height: 100%;
+}
+
+.map-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Esta clase se usa para correr el mapa y los marcadores en sincronía perfecta hacia la derecha (evade el sidebar del menú) */
+.shifted-layer {
+  transform: translateX(7vw);
+}
+
+.map-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* Let clicks pass through to markers */
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
+
+/* Header de la parte superior */
+.map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.map-title-container {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 10px 20px;
+  backdrop-filter: blur(5px);
+  border-radius: 8px;
+  pointer-events: auto; /* Reactiva los clicks solo donde hay elementos tangibles */
+}
+
+.map-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 4.5rem;
+  color: #111;
+  font-weight: 700;
+  line-height: 1;
+  margin: 0;
+  letter-spacing: -1px;
+}
+
+.map-subtitle {
+  font-size: 0.75rem;
+  color: #444;
+  letter-spacing: 3px;
+  margin-top: 5px;
+  font-weight: 600;
+}
+
+/* Estilo Sello Postal para el Botón de Info */
+.icon-btn.dark-btn {
+  background-color: transparent;
+  color: #362f2d;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.8rem;
+  font-style: normal;
+  font-weight: bold;
+  cursor: pointer;
+
+  /* Borde de tinta de sello */
+  border: 2px solid #362f2d;
+  box-shadow: inset 0 0 0 1px rgba(54, 47, 45, 0.3), 0 0 0 1px rgba(54, 47, 45, 0.3);
+  transform: rotate(15deg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  position: relative;
+  pointer-events: auto; /* Reactiva interacción del botón */
+}
+
+/* Anillo interno punteado del sello */
+.icon-btn.dark-btn::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  border-radius: 50%;
+  border: 1px dashed #362f2d;
+  pointer-events: none;
+}
+
+.icon-btn.dark-btn:hover {
+  transform: rotate(0deg) scale(1.1);
+  color: #d1562b;
+  border-color: #d1562b;
+  box-shadow: inset 0 0 0 1px rgba(209, 86, 43, 0.3), 0 0 6px rgba(209, 86, 43, 0.3);
+}
+
+.icon-btn.dark-btn:hover::after {
+  border-color: #d1562b;
+}
+
+/* Contenedor inferior flex */
+.map-bottom-container {
+  display: flex;
+  justify-content: flex-end;
+  /* Alinea los elementos al lado derecho */
+  align-items: flex-end;
+}
+
+/* Leyenda */
+.map-legend {
+  background: #fffafa;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  width: 220px;
+}
+
+.map-legend h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.map-legend ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.map-legend li {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.color-interest {
+  background-color: #dd713b;
+}
+
+.color-water {
+  background-color: #92bce2;
+}
+
+.color-green {
+  background-color: #aed5a6;
+}
+
+.color-road {
+  background-color: #d1c8bd;
+}
+
+/* Filtros Centro */
+.map-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.filter-pill {
+  background: #fffdfb;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #111;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s;
+}
+
+.filter-pill:hover {
+  transform: translateY(-2px);
+}
+
+.filter-icon {
+  color: #888;
+  font-size: 0.7rem;
+}
+
+/* Bloque Stats Derecho - Estilo Etiqueta Antigua de Viaje */
+.map-stats-box {
+  background-color: #ebd6be; /* Mismo papel que el menú lateral */
+  border: 1px solid #4a3827; /* Borde oscuro y fino de tinta */
+  border-radius: 40px 4px 4px 40px; /* Redondeada en la izquierda imitando etiqueta */
+  padding: 15px 30px 15px 50px; /* Espaciado extra en la izquierda para el ojal */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 200px;
+  /* Se añaden strong inset shadows para el borde "quemado" y sucio por los años */
+  box-shadow: 2px 4px 15px rgba(0, 0, 0, 0.4), inset 0 0 50px rgba(105, 61, 22, 0.25), inset 0 0 10px rgba(50, 27, 9, 0.35);
+  transform: rotate(-3deg);
+  position: relative;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+  pointer-events: auto; /* Reactiva interacciones de la etiqueta */
+}
+
+/* Efecto hover interactivo magnético (Flota) */
+.map-stats-box:hover {
+  transform: rotate(-1deg) translateY(-8px) scale(1.02);
+  box-shadow: 4px 12px 25px rgba(0, 0, 0, 0.4), inset 0 0 50px rgba(105, 61, 22, 0.25), inset 0 0 10px rgba(50, 27, 9, 0.35);
+}
+
+/* Decoración con líneas internas para costura */
+.map-stats-box::before {
+  content: '';
+  position: absolute;
+  top: 5px; left: 5px; right: 5px; bottom: 5px;
+  border: 1.5px dashed rgba(74, 56, 39, 0.5);
+  pointer-events: none;
+  border-radius: 36px 2px 2px 36px;
+}
+
+/* Ojal de metal (Añadido en HTML) */
+.tag-eyelet {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #d1bfa6; /* Fondo oscuro del hueco perforado */
+  border: 3.5px solid #6b5c4f; /* Metal de bronce oxidado */
+  box-shadow: inset 1px 2px 4px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.4);
+  z-index: 2;
+}
+
+/* Clip/gancho de alambre que la sostiene (Añadido en HTML) */
+.tag-clip {
+  position: absolute;
+  left: -15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 4px;
+  background: linear-gradient(to bottom, #d4d4d4, #737373);
+  border-radius: 2px;
+  box-shadow: 1px 3px 4px rgba(0,0,0,0.5);
+  z-index: -1;
+}
+
+.stats-label {
+  color: #2c2018; /* Casi negro tinta */
+  font-family: 'Playfair Display', serif; /* Típico de prensa clásica */
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0px;
+  margin-bottom: 6px;
+  text-transform: none; /* No está todo en mayúsculas en tu imagen */
+  border-bottom: 1.5px solid rgba(74, 56, 39, 0.6);
+  padding-bottom: 4px;
+  z-index: 2;
+  text-align: center;
+  width: 100%;
+}
+
+.stats-number {
+  color: #3b2516; /* Marrón oscuro sólido */
+  font-family: 'Playfair Display', serif;
+  font-size: 4.5rem;
+  font-weight: 800;
+  line-height: 1;
+  font-style: normal; /* Ahora recta sólida en lugar de cursiva */
+  text-align: center;
+  width: 100%;
+  z-index: 2;
+}
+
+/* Sidebar para Lugares (ESTÉTICA CLÁSICA / VINTAGE REPLICADA) */
+.map-sidebar {
+  position: absolute;
+  top: 380px;
+  max-height: calc(100vh - 400px);
+  left: 15px;
+  width: 290px;
+  background-color: #ebd6be;
+  /* Un papel un poco más oscuro y avejentado */
+  border: 1.5px solid #4a3827;
+  /* Borde exterior que simula tinta */
+  /* El secreto para el "papel cortado a mano": Radios irregulares asimétricos */
+  border-radius: 3% 1% 4% 2% / 1% 4% 2% 3%;
+  box-shadow: 2px 4px 15px rgba(0, 0, 0, 0.4), inset 0 0 50px rgba(139, 90, 43, 0.15);
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  pointer-events: auto;
+  z-index: 10;
+  animation: slideRight 0.5s ease forwards;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+}
+
+/* Costura interna intermitente (Dashed stitch) */
+.map-sidebar::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  border: 1.5px dashed rgba(74, 56, 39, 0.7);
+  /* Guiones oscuros que parecen costura de máquina */
+  /* Otro radio irregular opuesto para que la línea no sea paralela perfecta */
+  border-radius: 1% 3% 2% 4% / 4% 1% 3% 2%;
+  pointer-events: none;
+}
+
+@keyframes slideRight {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.sidebar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  color: #2c2018;
+  /* Casi negro */
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0px;
+  margin-top: 5px;
+  margin-bottom: 12px;
+  border-bottom: 1.5px solid rgba(74, 56, 39, 0.6);
+  /* Línea sólida que simula bolígrafo */
+  padding-bottom: 8px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  transform: rotate(-0.5deg);
+  /* Inclinación súper imperceptible para quitar rectitud */
+}
+
+.sidebar-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  /* Más espacio para acomodar el botón */
+  padding-right: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.sidebar-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-list::-webkit-scrollbar-track {
+  background: transparent;
+  border-left: 1px solid rgba(117, 95, 70, 0.2);
+}
+
+.sidebar-list::-webkit-scrollbar-thumb {
+  background: #755f46;
+  border-radius: 0;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(117, 95, 70, 0.3);
+  /* Línea solida tenue como separador */
+  border-radius: 0;
+  transition: all 0.2s ease;
+  background: transparent;
+}
+
+.sidebar-item:hover {
+  background: rgba(74, 56, 39, 0.04);
+}
+
+.sidebar-item-icon {
+  width: 50px;
+  height: 55px;
+  /* Un poco más asimétrico */
+  background-color: #f7f1e6;
+  /* Blanco hueso viejo */
+  padding: 4px 4px 14px 4px;
+  border: 1px solid rgba(54, 47, 45, 0.25);
+  box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.25);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+}
+
+/* Intercalar la rotación (staggered rotations) para que parezcan tiradas al azar */
+.sidebar-item:nth-child(odd) .sidebar-item-icon {
+  transform: rotate(4deg);
+}
+
+.sidebar-item:nth-child(even) .sidebar-item-icon {
+  transform: rotate(-3deg);
+}
+
+.sidebar-item:hover .sidebar-item-icon {
+  transform: scale(1.1) rotate(0deg);
+  box-shadow: 3px 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-item-icon img {
+  width: 100%;
+  height: 35px;
+  /* Fijamos la altura para respetar la parte baja más grande */
+  object-fit: cover;
+  border: 1px solid rgba(54, 47, 45, 0.3);
+  filter: sepia(0.2) contrast(1.1) brightness(0.9);
+}
+
+.sidebar-item-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
+  gap: 6px;
+}
+
+.sidebar-item-name {
+  font-family: 'Playfair Display', serif;
+  font-weight: 800;
+  color: #2c2018;
+  font-size: 0.95rem;
+  line-height: 1.1;
+}
+
+/* Estilo exacto del botón marrón texturado del mockup */
+.sidebar-btn-map {
+  background: #503d2b;
+  /* Marrón muy oscuro base */
+  color: #fffaf0;
+  /* Texto crema suave claro */
+  border: 1px solid rgba(34, 23, 15, 0.8);
+  /* Irregularidad de sello cortado a mano */
+  border-radius: 6px 3px 8px 4px / 3px 6px 4px 8px;
+  padding: 6px 0;
+  width: 100%;
+  /* Toma todo el ancho disponible en la columna */
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  /* Doble borde interno / brillo característico de la captura */
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35), 2px 2px 4px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s;
+  text-align: center;
+  transform: rotate(0.2deg);
+  /* Un mínimo giro para quitar lo electrónico */
+}
+
+.sidebar-btn-map:hover {
+  background: #614a34;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45), 3px 4px 6px rgba(0, 0, 0, 0.35);
+  transform: translateY(-1px);
+}
+
+.sidebar-btn-map:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15), 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Efecto magnético interactivo (Flota) */
+.map-sidebar:hover {
+  transform: translateY(-8px);
+  box-shadow: 5px 15px 30px rgba(0, 0, 0, 0.35), inset 0 0 50px rgba(139, 90, 43, 0.15);
+}
