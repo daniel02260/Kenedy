@@ -34,7 +34,7 @@ const InfoModal = ({ onClose }: InfoModalProps) => {
               <>
                 <a href="https://www.uniagustiniana.edu.co" target="_blank" rel="noopener noreferrer" className="uni-link-logo">
                   <img
-                    src="/img/logo_universidad.png?v=2"
+                    src="public/img/logo_universidad.png?v=2"
                     alt="Logo Universidad Uniagustiniana"
                     className="uni-logo"
                   />
@@ -55,7 +55,7 @@ const InfoModal = ({ onClose }: InfoModalProps) => {
                   <div className='credit-item developer-credit'>
                     <strong>Ingeniero desarrollador de plataforma</strong>
                     <div className="developer-profile">
-                      <img src="/img/daniel_nomelin.jpg" alt="Daniel Nomelin" className="credit-photo" />
+                      <img src="public/img/daniel_nomelin.jpg" alt="Daniel Nomelin" className="credit-photo" />
                       <span>DANIEL NOMELIN OVIEDO</span>
                     </div>
                   </div>

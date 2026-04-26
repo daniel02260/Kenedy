@@ -47,7 +47,7 @@ const Map = () => {
 
       {/* Wrapper de Alineación Perfecta (Escala juntos Croquis y Marcadores en 3:2 sin desfasarse) */}
       <div className="map-wrapper shifted-layer">
-        <img src="/img/croquis.png" alt="Croquis Kennedy" className="map-image" />
+        <img src="public/img/croquis.png" alt="Croquis Kennedy" className="map-image" />
 
         {/* Dynamic Markers */}
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 10 }}>
@@ -82,7 +82,7 @@ const Map = () => {
         <div className="map-header">
           <div className="map-title-container" style={{ background: 'transparent', boxShadow: 'none', padding: 0, marginLeft: '-20px', marginTop: '-20px' }}>
             <img
-              src="/img/LOGO_EXPLORA_kENNEDY.png"
+              src="public/img/LOGO_EXPLORA_kENNEDY.png"
               alt="Explora Kennedy Transmedia"
               className="logo-overlay"
               style={{ maxWidth: '260px', height: 'auto', objectFit: 'contain', cursor: 'help' }}
