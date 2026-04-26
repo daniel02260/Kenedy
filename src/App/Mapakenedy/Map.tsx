@@ -48,7 +48,7 @@ const Map = () => {
       {/* Wrapper de Alineación Perfecta (Escala juntos Croquis y Marcadores en 3:2 sin desfasarse) */}
       <div className="map-wrapper shifted-layer">
         <img src="/img/croquis.png" alt="Croquis Kennedy" className="map-image" />
-        
+
         {/* Dynamic Markers */}
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 10 }}>
           {points.map((point) => (
@@ -109,7 +109,17 @@ const Map = () => {
                   onMouseEnter={() => setHoveredPointId(point.id)}
                   onMouseLeave={() => setHoveredPointId(null)}
                 >
-                  <div className="sidebar-item-icon" onClick={() => setSelectedPoint(point)}>
+                  <div 
+                    className="sidebar-item-icon" 
+                    onClick={(e) => {
+                      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                      setModalOrigin({
+                        x: rect.left + rect.width / 2,
+                        y: rect.top + rect.height / 2
+                      });
+                      setSelectedPoint(point);
+                    }}
+                  >
                     {firstImage ? (
                       <img src={firstImage.url} alt={point.name} />
                     ) : (

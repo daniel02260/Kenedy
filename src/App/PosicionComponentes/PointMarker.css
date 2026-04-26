@@ -3,11 +3,11 @@
   width: 95px;
   height: 95px;
   border-radius: 50%;
-  /* Fondo transparente para que parezca tinta directamente en el papel */
-  background: transparent;
-  /* Anillo exterior del sello */
-  border: 2px solid #362f2d;
-  transform: translate(-50%, -50%) rotate(-8deg); /* Inclinación de sello de mano */
+  /* Fondo crema/papel para crear contraste contra el rojo del mapa */
+  background: #f7ede2;
+  /* Anillo exterior tipo marco de fotografía */
+  border: 3px solid #f7ede2;
+  transform: translate(-50%, -50%) rotate(-8deg); /* Inclinación natural */
   cursor: pointer;
   display: flex;
   justify-content: center;
@@ -15,19 +15,20 @@
   transition: all 0.3s ease;
   z-index: 50;
   pointer-events: auto !important;
-  /* Un segundo anillo difuminado simulando sangrado de tinta */
-  box-shadow: inset 0 0 0 1px rgba(54, 47, 45, 0.3), 0 0 0 1px rgba(54, 47, 45, 0.3);
-  padding: 4px;
+  /* Sombra para que flote resaltando más sobre el fondo */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(200, 150, 100, 0.3);
+  padding: 5px;
 }
 
 
 
 .point-marker-circle:hover,
 .point-marker-circle.highlighted {
-  transform: translate(-50%, -50%) scale(1.2) rotate(0deg);
-  border-color: #d1562b;
-  box-shadow: inset 0 0 0 1px rgba(209, 86, 43, 0.5), 0 0 15px rgba(209, 86, 43, 0.8);
-  z-index: 20;
+  transform: translate(-50%, -50%) scale(1.15) rotate(0deg);
+  border-color: #ffffff;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 215, 100, 0.8);
+  z-index: 55;
 }
 
 .point-marker-circle.highlighted {
@@ -35,8 +36,8 @@
 }
 
 @keyframes pulseGlow {
-  from { box-shadow: 0 0 10px rgba(209, 86, 43, 0.6); }
-  to { box-shadow: 0 0 25px rgba(209, 86, 43, 1); }
+  from { box-shadow: 0 6px 15px rgba(0,0,0,0.4), 0 0 10px rgba(255, 215, 100, 0.4); }
+  to { box-shadow: 0 10px 25px rgba(0,0,0,0.6), 0 0 25px rgba(255, 215, 100, 1); }
 }
 
 .circle-inner {
@@ -44,8 +45,8 @@
   height: 100%;
   border-radius: 50%;
   background: transparent;
-  /* Anillo interior del sello */
-  border: 1.5px dashed #362f2d;
+  /* Anillo dorado elegante que contrasta contra el fondo crema */
+  border: 2.5px dashed #b88645;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -54,15 +55,15 @@
 
 .point-marker-circle:hover .circle-inner,
 .point-marker-circle.highlighted .circle-inner {
-  border-color: #d1562b;
+  border-color: #e6b150;
 }
 
 .circle-text {
-  /* Fuente tipo máquina de escribir colonial para el sello */
+  /* Fuente para etiqueta dorada vintage */
   font-family: 'Courier New', Courier, monospace; 
   font-size: 0.65rem;
   font-weight: 700;
-  color: #362f2d;
+  color: #8c5d26; /* Texto marrón antiguo elegante */
   text-align: center;
   text-transform: uppercase;
   line-height: 1.1;
@@ -70,7 +71,7 @@
 }
 
 .point-marker-circle:hover .circle-text {
-  color: #d1562b;
+  color: #dca843;
 }
 
 .stamp-image {

@@ -7,7 +7,7 @@ export const humedalElBurro: PointOfInterest = {
   x: 52,
   y: 32,
   media: [
-    { type: 'image', url: '/img/Humedal-El-Burro.png', title: 'Fauna del humedal' },
+    { type: 'image', url: '/img/img_humedaldelburro/Humedal-El-Burro.png', title: 'Fauna del humedal' },
     { type: 'podcast', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', title: 'Historias del Humedal' }
   ],
   comments: []
