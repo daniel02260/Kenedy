@@ -49,6 +49,14 @@ const CassettePlayer = ({ podcast }: { podcast: { url: string, title?: string } 
     }
   };
 
+  const handleError = (e: React.SyntheticEvent<HTMLAudioElement, Event>) => {
+    console.error('Error loading audio:', e);
+    // Intentar recargar el audio
+    if (audioRef.current) {
+      audioRef.current.load();
+    }
+  };
+
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVol = Number(e.target.value);
     setVolume(newVol);
@@ -160,6 +168,8 @@ const CassettePlayer = ({ podcast }: { podcast: { url: string, title?: string } 
           onEnded={() => { setIsPlaying(false); setProgress(0); }}
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
+          onError={handleError}
+          preload="metadata"
           style={{ display: 'none' }}
         />
       </div>
