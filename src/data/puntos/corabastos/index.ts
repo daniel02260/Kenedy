@@ -8,7 +8,7 @@ export const corabastos: PointOfInterest = {
   y: 46,
   media: [
     { type: 'image', url: '/img/img_corabastos/corabastos.png', title: 'Mercado de frutas' },
-    { type: 'video', url: '/img/ABASTOS PARA FAGUS 2026.mp4', title: 'Recorriendo Abastos' }
+    { type: 'video', url: '/img/img_corabastos/ABASTOS PARA FAGUS 2026.mp4', title: 'Recorriendo Abastos' }
   ],
   comments: []
 };

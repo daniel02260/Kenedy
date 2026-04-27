@@ -339,7 +339,15 @@ const PointDetailModal = ({ point, onClose, originX, originY }: PointDetailModal
                         <div key={idx} className="video-card cinema-screen-wrapper">
                           <div className="cinema-stage">
                             <div className="cinema-screen-container">
-                              <video src={vid.url} controls className="cinema-video" />
+                              <video 
+                                src={vid.url} 
+                                controls 
+                                className="cinema-video"
+                                preload="metadata"
+                                crossOrigin="anonymous"
+                              >
+                                <p>Tu navegador no soporta video HTML5. Por favor actualiza tu navegador.</p>
+                              </video>
                               <div className="cinema-projector-glow"></div>
                             </div>
                           </div>
