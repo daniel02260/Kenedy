@@ -9,7 +9,7 @@ export const parqueTimiza: PointOfInterest = {
   media: [
     { type: 'image', url: '/img/img_parquetimiza/parque_timiza_1.jpg', title: 'Lago del Parque Timiza' },
     { type: 'podcast', url: '/img/img_parquetimiza/parque_timiza_podcast.wav', title: 'Historia Viva: Los orígenes de Timiza' },
-    { type: 'video', url: '/img/img_parquetimiza/Parque Metropolitano Timiza .mp4', title: 'Recorrido en bici' }
+    { type: 'video', url: 'https://www.youtube.com/embed/Kz8isLP8r8A', title: 'Recorrido en bici' }
   ],
   comments: []
 };

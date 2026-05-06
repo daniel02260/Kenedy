@@ -17,7 +17,7 @@ export const monumentoBanderas: PointOfInterest = {
     { type: 'image', url: '/img/img_banderas/IMG_0309.JPG', title: '' },
     { type: 'image', url: '/img/img_banderas/IMG_0315.JPG', title: '' },
     { type: 'image', url: '/img/img_banderas/IMG_0317.JPG', title: '' },
-    { type: 'video', url: '/img/img_banderas/Monumento A Las Banderas .mp4', title: 'Recorrido en bici' },
+    { type: 'video', url: 'https://www.youtube.com/embed/tY6hfl7fX_g', title: 'Recorrido en bici' },
     { type: 'podcast', url: '/img/img_banderas/Capítulo 2_ Madrinas del monumento de Banderas.wav', title: 'Historia banderas' }
   ],
   comments: [] // inicial vacío, la app fusiona los guardados
