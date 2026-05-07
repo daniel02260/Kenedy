@@ -10,12 +10,18 @@ interface AppContextType {
   addComment: (pointId: string, comment: Comment) => void;
   deleteComment: (pointId: string, commentId: string) => void;
   likeComment: (pointId: string, commentId: string) => void;
+  isFirstVisit: boolean;
+  markFirstVisitDone: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isFirstVisit, setIsFirstVisit] = useState(() => {
+    const visited = localStorage.getItem('kennedy_first_visit');
+    return !visited;//si no hay visited, es la primera vez
+  });
   const [points, setPoints] = useState<PointOfInterest[]>(() => {
     const saved = localStorage.getItem('kennedy_points');
     if (saved) {
@@ -79,8 +85,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
+  const markFirstVisitDone = () => {
+    localStorage.setItem('kennedy_first_visit', 'true');
+    setIsFirstVisit(false);
+  };
+
   return (
-    <AppContext.Provider value={{ isAdmin, setIsAdmin, points, addComment, deleteComment, likeComment }}>
+    <AppContext.Provider value={{ isAdmin, setIsAdmin, points, addComment, deleteComment, likeComment, isFirstVisit, markFirstVisitDone }}>
       {children}
     </AppContext.Provider>
   );

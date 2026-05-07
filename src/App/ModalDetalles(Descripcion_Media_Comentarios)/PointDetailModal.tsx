@@ -194,6 +194,41 @@ const PointDetailModal = ({ point, onClose, originX, originY }: PointDetailModal
 
   const carouselRef = useRef<HTMLDivElement>(null);
   const isHoveredCarousel = useRef(false);
+  const documentBodyRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isScrollHintActive, setIsScrollHintActive] = useState(false);
+
+  const easeInOutQuad = (t: number) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+  const scrollToDocumentBody = () => {
+    const container = scrollContainerRef.current;
+    const target = documentBodyRef.current;
+    if (container && target) {
+      setIsScrollHintActive(true);
+      const startScroll = container.scrollTop;
+      const targetOffset = target.offsetTop;
+      const distance = targetOffset - startScroll;
+      const duration = 1400;
+      let startTime: number | null = null;
+
+      const animate = (timestamp: number) => {
+        if (startTime === null) {
+          startTime = timestamp;
+        }
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        container.scrollTop = startScroll + distance * easeInOutQuad(progress);
+
+        if (elapsed < duration) {
+          requestAnimationFrame(animate);
+        } else {
+          window.setTimeout(() => setIsScrollHintActive(false), 200);
+        }
+      };
+
+      requestAnimationFrame(animate);
+    }
+  };
 
   // Lógica de auto-scroll continuo para la galería
   useEffect(() => {
@@ -240,20 +275,23 @@ const PointDetailModal = ({ point, onClose, originX, originY }: PointDetailModal
       <div className="fullscreen-content-fadein" onClick={(e) => e.stopPropagation()}>
 
         {/* Botón flotante círculo */}
-        <button className="sticky-close-button" onClick={onClose} title="Cerrar y Volver">&times;</button>
+        <div className="close-button-wrapper">
+          <button className="sticky-close-button" onClick={onClose} title="Cerrar y Volver">&times;</button>
+          <span className="close-hint">Salir</span>
+        </div>
 
-        <div className="fullscreen-scroll-container" onClick={(e) => e.stopPropagation()}>
+        <div className="fullscreen-scroll-container" ref={scrollContainerRef} onClick={(e) => e.stopPropagation()}>
 
           {/* 1. SECCIÓN DE PORTADA / HERO */}
-          <div className="fs-hero-section">
+          <div className={`fs-hero-section${isScrollHintActive ? ' active' : ''}`}>
             {coverImage ? (
               <img
                 src={coverImage.url}
                 alt={coverImage.title}
                 className="fs-hero-bg"
-                style={{ cursor: 'zoom-in' }}
-                onClick={() => setLightboxImage(coverImage.url)}
-                title="Ampliar imagen"
+                style={{ cursor: 'pointer' }}
+                onClick={scrollToDocumentBody}
+                title="Haz clic para desplazarte hacia abajo"
               />
             ) : (
               <div className="fs-hero-bg-fallback"></div>
@@ -262,7 +300,7 @@ const PointDetailModal = ({ point, onClose, originX, originY }: PointDetailModal
             <div className="fs-hero-content">
               <span className="fs-category-pill">EXPLORA KENNEDY</span>
               <h1 className="fs-title">{point.name}</h1>
-              <div className="scroll-indicator">
+              <div className={`scroll-indicator ${isScrollHintActive ? 'active' : ''}`} onClick={scrollToDocumentBody} title="Ir al contenido">
                 <span>Desliza hacia abajo</span>
                 <div className="arrow-down">↓</div>
               </div>
@@ -270,7 +308,7 @@ const PointDetailModal = ({ point, onClose, originX, originY }: PointDetailModal
           </div>
 
           {/* 2. CUERPO DEL DOCUMENTO */}
-          <div className="fs-document-body">
+          <div className="fs-document-body" ref={documentBodyRef}>
 
             {/* MENÚ DE ANCLAJES / PESTAÑAS (STICKY) */}
             <div className="fs-sticky-nav">

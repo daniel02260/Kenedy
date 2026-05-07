@@ -9,7 +9,7 @@ import type { PointOfInterest } from '../../types';
 import './Map.css';
 
 const Map = () => {
-  const { points, isAdmin, setIsAdmin } = useAppContext();
+  const { points, isAdmin, setIsAdmin, isFirstVisit, markFirstVisitDone } = useAppContext();
   const [selectedPoint, setSelectedPoint] = useState<PointOfInterest | null>(null);
   const [hoveredPointId, setHoveredPointId] = useState<string | null>(null);
   const [modalOrigin, setModalOrigin] = useState<{ x: number, y: number } | null>(null);
@@ -56,6 +56,7 @@ const Map = () => {
               key={point.id}
               point={point}
               onClick={(e) => {
+                markFirstVisitDone();
                 // Capturar el bounding rect exacto del marcador para el origen de la animación (Portal Expand)
                 if (e) {
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -92,7 +93,7 @@ const Map = () => {
           </div>
 
           <div className="map-controls-top-right">
-            <button className="icon-btn dark-btn" onClick={() => setIsInfoOpen(true)}>i</button>
+            <button className={`icon-btn dark-btn ${isFirstVisit ? 'first-visit-pulse' : ''}`} onClick={() => { markFirstVisitDone(); setIsInfoOpen(true); }}>i</button>
           </div>
         </div>
 
@@ -112,6 +113,7 @@ const Map = () => {
                   <div 
                     className="sidebar-item-icon" 
                     onClick={(e) => {
+                      markFirstVisitDone();
                       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
                       setModalOrigin({
                         x: rect.left + rect.width / 2,
@@ -129,8 +131,9 @@ const Map = () => {
                   <div className="sidebar-item-info">
                     <span className="sidebar-item-name">{point.name}</span>
                     <button
-                      className="sidebar-btn-map"
+                      className={`sidebar-btn-map ${isFirstVisit ? 'first-visit-pulse' : ''}`}
                       onClick={(e) => {
+                        markFirstVisitDone();
                         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
                         setModalOrigin({
                           x: rect.left + rect.width / 2,

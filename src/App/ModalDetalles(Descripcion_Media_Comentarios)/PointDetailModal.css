@@ -90,37 +90,81 @@
   overflow-x: hidden;
   scroll-behavior: smooth;
   position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.65) rgba(17, 17, 17, 0.2);
+}
+
+.fullscreen-scroll-container::-webkit-scrollbar {
+  width: 12px;
+}
+
+.fullscreen-scroll-container::-webkit-scrollbar-track {
+  background: rgba(17, 17, 17, 0.12);
+  border-radius: 999px;
+}
+
+.fullscreen-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 999px;
+  border: 3px solid rgba(17, 17, 17, 0.12);
+}
+
+.fullscreen-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.close-button-wrapper {
+  position: fixed;
+  top: 22px;
+  right: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 4000;
 }
 
 .sticky-close-button {
-  position: fixed;
-  top: 25px;
-  right: 35px;
   background: #fdfaf6;
   border: 2px dashed #a87b51;
-  border-radius: 50%;
-  /* Sello postal circular */
   color: #362f2d;
-  width: 55px;
-  height: 55px;
-  font-size: 2rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  font-size: 1.8rem;
   font-family: 'Courier New', Courier, monospace;
   font-weight: bold;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 4000;
   cursor: pointer;
-  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.3);
-  /* Da la sensación de estar pegado pero flotando */
-  transition: all 0.2s ease;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.14);
+  transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease;
 }
 
 .sticky-close-button:hover {
   background: #a87b51;
   color: #fdfaf6;
-  transform: rotate(-10deg) scale(1.05);
-  /* Rota como un sello físico */
+  transform: translateY(-2px) scale(1.05);
+}
+
+.close-hint {
+  color: #362f2d;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  background: rgba(253, 250, 246, 0.95);
+  padding: 6px 14px;
+  border: 1px solid rgba(168, 123, 81, 0.35);
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+  transform: translateY(-1px);
+}
+
+.close-hint::before {
+  display: none;
 }
 
 /* --- 1. SECCIÓN DE PORTADA / HERO --- */
@@ -224,6 +268,38 @@
   font-size: 0.75rem;
   opacity: 0.6;
   animation: bounce 2s infinite;
+  cursor: pointer;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.scroll-indicator.active {
+  opacity: 1;
+  transform: translateY(-10px);
+  animation: none;
+}
+
+.scroll-indicator.active .arrow-down {
+  animation: slideUp 0.8s ease forwards;
+}
+
+@keyframes slideUp {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+}
+
+.fs-hero-section.active {
+  transform: translateY(-24px);
+  transition: transform 0.8s ease;
+}
+
+.fs-hero-section {
+  transition: transform 0.8s ease;
 }
 
 .scroll-indicator span {
