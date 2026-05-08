@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import PointMarker from '../PosicionComponentes/PointMarker';
 import PointDetailModal from '../ModalDetalles(Descripcion_Media_Comentarios)/PointDetailModal';
@@ -9,13 +9,22 @@ import type { PointOfInterest } from '../../types';
 import './Map.css';
 
 const Map = () => {
-  const { points, isAdmin, setIsAdmin, isFirstVisit, markFirstVisitDone } = useAppContext();
+  const { points, isAdmin, setIsAdmin, addPoint, isFirstVisit, markFirstVisitDone } = useAppContext();
   const [selectedPoint, setSelectedPoint] = useState<PointOfInterest | null>(null);
   const [hoveredPointId, setHoveredPointId] = useState<string | null>(null);
   const [modalOrigin, setModalOrigin] = useState<{ x: number, y: number } | null>(null);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [showAdminAuth, setShowAdminAuth] = useState(false);
   const [showAdminLogout, setShowAdminLogout] = useState(false);
+  const [newPlaceName, setNewPlaceName] = useState('');
+  const [newPlaceDescription, setNewPlaceDescription] = useState('');
+  const [newVideoLink, setNewVideoLink] = useState('');
+  const [newPodcastLink, setNewPodcastLink] = useState('');
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [isAddingPlace, setIsAddingPlace] = useState(false);
+  const [showAddPlaceModal, setShowAddPlaceModal] = useState(false);
+  const [newPlaceX, setNewPlaceX] = useState(50);
+  const [newPlaceY, setNewPlaceY] = useState(50);
 
   const closeModal = () => {
     setSelectedPoint(null);
@@ -38,6 +47,56 @@ const Map = () => {
   const handleAdminLogoutConfirm = () => {
     setIsAdmin(false);
     setShowAdminLogout(false);
+  };
+
+  const handleImageFilesChange = (files: FileList | null) => {
+    if (!files) return;
+    setNewImages(Array.from(files));
+  };
+
+  const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+  const handleAddPlace = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!newPlaceName.trim() || !newPlaceDescription.trim()) return;
+    setIsAddingPlace(true);
+
+    const imageMedia = await Promise.all(
+      newImages.map(async (file) => ({
+        type: 'image' as const,
+        url: await toBase64(file),
+        title: file.name
+      }))
+    );
+
+    const media: PointOfInterest['media'] = [
+      ...imageMedia,
+      ...(newVideoLink.trim() ? [{ type: 'video' as const, url: newVideoLink.trim(), title: 'Video' }] : []),
+      ...(newPodcastLink.trim() ? [{ type: 'podcast' as const, url: newPodcastLink.trim(), title: 'Podcast' }] : [])
+    ];
+
+    addPoint({
+      name: newPlaceName.trim(),
+      description: newPlaceDescription.trim(),
+      x: newPlaceX,
+      y: newPlaceY,
+      media,
+    });
+
+    setNewPlaceName('');
+    setNewPlaceDescription('');
+    setNewVideoLink('');
+    setNewPodcastLink('');
+    setNewImages([]);
+    setNewPlaceX(50);
+    setNewPlaceY(50);
+    setIsAddingPlace(false);
+    setShowAddPlaceModal(false);
   };
 
   return (
@@ -93,45 +152,68 @@ const Map = () => {
           </div>
 
           <div className="map-controls-top-right">
+            {isAdmin && (
+              <button
+                className="icon-btn dark-btn"
+                onClick={() => window.open('https://analytics.google.com/analytics/web/', '_blank')}
+                title="Ver Google Analytics"
+              >
+                📊
+              </button>
+            )}
             <button className={`icon-btn dark-btn ${isFirstVisit ? 'first-visit-pulse' : ''}`} onClick={() => { markFirstVisitDone(); setIsInfoOpen(true); }}>i</button>
           </div>
         </div>
 
         {/* Sidebar Menu for Points */}
         <div className="map-sidebar">
-          <h3 className="sidebar-title">Lugares Documentados</h3>
-          <ul className="sidebar-list">
-            {points.map((point) => {
-              const firstImage = point.media.find(m => m.type === 'image');
-              return (
-                <li
-                  key={point.id}
-                  className="sidebar-item"
-                  onMouseEnter={() => setHoveredPointId(point.id)}
-                  onMouseLeave={() => setHoveredPointId(null)}
-                >
-                  <div 
-                    className="sidebar-item-icon" 
-                    onClick={(e) => {
-                      markFirstVisitDone();
-                      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                      setModalOrigin({
-                        x: rect.left + rect.width / 2,
-                        y: rect.top + rect.height / 2
-                      });
-                      setSelectedPoint(point);
-                    }}
+          <h3 className="sidebar-title">{isAdmin ? 'Análisis' : 'Lugares Documentados'}</h3>
+          {isAdmin ? (
+            <ul className="sidebar-list">
+              <li className="sidebar-item admin-sidebar-item">
+                <div className="sidebar-item-icon">
+                  <span style={{ fontSize: '1.4rem' }}>📊</span>
+                </div>
+                <div className="sidebar-item-info">
+                  <span className="sidebar-item-name">Google Analytics</span>
+                  <button
+                    className="sidebar-btn-map"
+                    type="button"
+                    onClick={() => window.open('https://analytics.google.com/analytics/web/', '_blank')}
                   >
-                    {firstImage ? (
-                      <img src={firstImage.url} alt={point.name} />
-                    ) : (
-                      <span style={{ fontSize: '1.2rem' }}>📍</span>
-                    )}
-                  </div>
-                  <div className="sidebar-item-info">
-                    <span className="sidebar-item-name">{point.name}</span>
-                    <button
-                      className={`sidebar-btn-map ${isFirstVisit ? 'first-visit-pulse' : ''}`}
+                    Acceder al flujo
+                  </button>
+                </div>
+              </li>
+              <li className="sidebar-item admin-sidebar-item">
+                <div className="sidebar-item-icon">
+                  <span style={{ fontSize: '1.4rem' }}>➕</span>
+                </div>
+                <div className="sidebar-item-info">
+                  <span className="sidebar-item-name">Agregar lugar</span>
+                  <button
+                    className="sidebar-btn-map"
+                    type="button"
+                    onClick={() => setShowAddPlaceModal(true)}
+                  >
+                    Abrir formulario
+                  </button>
+                </div>
+              </li>
+            </ul>
+          ) : (
+            <ul className="sidebar-list">
+              {points.map((point) => {
+                const firstImage = point.media.find(m => m.type === 'image');
+                return (
+                  <li
+                    key={point.id}
+                    className="sidebar-item"
+                    onMouseEnter={() => setHoveredPointId(point.id)}
+                    onMouseLeave={() => setHoveredPointId(null)}
+                  >
+                    <div 
+                      className="sidebar-item-icon" 
                       onClick={(e) => {
                         markFirstVisitDone();
                         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -142,13 +224,34 @@ const Map = () => {
                         setSelectedPoint(point);
                       }}
                     >
-                      Ver en mapa
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                      {firstImage ? (
+                        <img src={firstImage.url} alt={point.name} />
+                      ) : (
+                        <span style={{ fontSize: '1.2rem' }}>📍</span>
+                      )}
+                    </div>
+                    <div className="sidebar-item-info">
+                      <span className="sidebar-item-name">{point.name}</span>
+                      <button
+                        className={`sidebar-btn-map ${isFirstVisit ? 'first-visit-pulse' : ''}`}
+                        onClick={(e) => {
+                          markFirstVisitDone();
+                          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                          setModalOrigin({
+                            x: rect.left + rect.width / 2,
+                            y: rect.top + rect.height / 2
+                          });
+                          setSelectedPoint(point);
+                        }}
+                      >
+                        Ver en mapa
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
 
 
@@ -194,6 +297,95 @@ const Map = () => {
           onConfirm={handleAdminLogoutConfirm}
           onClose={() => setShowAdminLogout(false)}
         />
+      )}
+
+      {showAddPlaceModal && (
+        <div className="admin-add-place-overlay" onClick={() => setShowAddPlaceModal(false)}>
+          <div className="admin-add-place-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="auth-close-btn" onClick={() => setShowAddPlaceModal(false)} title="Cerrar">&times;</button>
+            <h3>Agregar nuevo lugar</h3>
+            <form className="admin-add-place-form" onSubmit={handleAddPlace}>
+              <label>
+                Nombre del lugar
+                <input
+                  type="text"
+                  value={newPlaceName}
+                  onChange={(e) => setNewPlaceName(e.target.value)}
+                  required
+                />
+              </label>
+
+              <label>
+                Historia
+                <textarea
+                  value={newPlaceDescription}
+                  onChange={(e) => setNewPlaceDescription(e.target.value)}
+                  rows={4}
+                  required
+                />
+              </label>
+
+              <div className="coordinates-group">
+                <label>
+                  Posición X (0-100)
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={newPlaceX}
+                    onChange={(e) => setNewPlaceX(Number(e.target.value))}
+                    required
+                  />
+                </label>
+                <label>
+                  Posición Y (0-100)
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={newPlaceY}
+                    onChange={(e) => setNewPlaceY(Number(e.target.value))}
+                    required
+                  />
+                </label>
+              </div>
+
+              <label>
+                Fotos (puedes seleccionar varias)
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => handleImageFilesChange(e.target.files)}
+                />
+              </label>
+
+              <label>
+                Link del video
+                <input
+                  type="url"
+                  value={newVideoLink}
+                  onChange={(e) => setNewVideoLink(e.target.value)}
+                  placeholder="https://"
+                />
+              </label>
+
+              <label>
+                Link del podcast
+                <input
+                  type="url"
+                  value={newPodcastLink}
+                  onChange={(e) => setNewPodcastLink(e.target.value)}
+                  placeholder="https://"
+                />
+              </label>
+
+              <button className="sidebar-btn-map" type="submit" disabled={isAddingPlace}>
+                {isAddingPlace ? 'Guardando...' : 'Agregar lugar'}
+              </button>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

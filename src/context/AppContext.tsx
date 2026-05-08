@@ -7,6 +7,9 @@ interface AppContextType {
   isAdmin: boolean;
   setIsAdmin: (value: boolean) => void;
   points: PointOfInterest[];
+  addPoint: (point: Omit<PointOfInterest, 'id' | 'comments'>) => void;
+  editPoint: (id: string, updates: Partial<PointOfInterest>) => void;
+  deletePoint: (id: string) => void;
   addComment: (pointId: string, comment: Comment) => void;
   deleteComment: (pointId: string, commentId: string) => void;
   likeComment: (pointId: string, commentId: string) => void;
@@ -85,13 +88,36 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
+  const addPoint = (point: Omit<PointOfInterest, 'id' | 'comments'>) => {
+    setPoints(prevPoints => [
+      ...prevPoints,
+      {
+        ...point,
+        id: crypto.randomUUID(),
+        comments: []
+      }
+    ]);
+  };
+
+  const editPoint = (id: string, updates: Partial<PointOfInterest>) => {
+    setPoints(prevPoints =>
+      prevPoints.map(point =>
+        point.id === id ? { ...point, ...updates } : point
+      )
+    );
+  };
+
+  const deletePoint = (id: string) => {
+    setPoints(prevPoints => prevPoints.filter(point => point.id !== id));
+  };
+
   const markFirstVisitDone = () => {
     localStorage.setItem('kennedy_first_visit', 'true');
     setIsFirstVisit(false);
   };
 
   return (
-    <AppContext.Provider value={{ isAdmin, setIsAdmin, points, addComment, deleteComment, likeComment, isFirstVisit, markFirstVisitDone }}>
+    <AppContext.Provider value={{ isAdmin, setIsAdmin, points, addPoint, editPoint, deletePoint, addComment, deleteComment, likeComment, isFirstVisit, markFirstVisitDone }}>
       {children}
     </AppContext.Provider>
   );
