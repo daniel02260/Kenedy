@@ -16,13 +16,16 @@ const CassettePlayer = ({ podcast }: { podcast: { url: string, title?: string } 
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const retryCountRef = useRef(0);
 
   const togglePlay = () => {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
-        audioRef.current.play();
+        audioRef.current.play().catch(() => {
+          console.warn('No se pudo reproducir el audio.');
+        });
       }
     }
   };
@@ -46,14 +49,17 @@ const CassettePlayer = ({ podcast }: { podcast: { url: string, title?: string } 
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
       audioRef.current.volume = volume;
+      retryCountRef.current = 0; // Reset retry counter on successful load
     }
   };
 
-  const handleError = (e: React.SyntheticEvent<HTMLAudioElement, Event>) => {
-    console.error('Error loading audio:', e);
-    // Intentar recargar el audio
-    if (audioRef.current) {
+  const handleError = (_e: React.SyntheticEvent<HTMLAudioElement, Event>) => {
+    // Solo reintentar una vez para evitar bucle infinito de errores
+    if (retryCountRef.current < 1 && audioRef.current) {
+      retryCountRef.current += 1;
       audioRef.current.load();
+    } else {
+      console.warn('No se pudo cargar el audio después de reintentar.');
     }
   };
 
