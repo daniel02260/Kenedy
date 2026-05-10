@@ -390,7 +390,7 @@
   background-color: #ebd6be; /* Mismo papel que el menú lateral */
   border: 1px solid #4a3827; /* Borde oscuro y fino de tinta */
   border-radius: 40px 4px 4px 40px; /* Redondeada en la izquierda imitando etiqueta */
-  padding: 15px 30px 15px 50px; /* Espaciado extra en la izquierda para el ojal */
+  padding: 15px 45px; /* Symmetrical padding so text is perfectly centered visually */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -709,34 +709,176 @@
   transform: translateY(-8px);
   box-shadow: 5px 15px 30px rgba(0, 0, 0, 0.35), inset 0 0 50px rgba(139, 90, 43, 0.15);
 }
+.form-navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.manage-places-modal {
+  max-width: 600px;
+}
+
+.manage-places-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.manage-places-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.manage-places-list::-webkit-scrollbar-track {
+  background: rgba(117, 95, 70, 0.1);
+  border-radius: 4px;
+}
+
+.manage-places-list::-webkit-scrollbar-thumb {
+  background: rgba(117, 95, 70, 0.4);
+  border-radius: 4px;
+}
+
+.manage-place-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(117, 95, 70, 0.3);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.manage-place-item:hover {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.manage-place-name {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  color: #2c2018;
+  font-size: 1.1rem;
+}
+
+.manage-place-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.manage-action-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.manage-action-btn.edit-btn {
+  color: #4a6fa5;
+  border-color: rgba(74, 111, 165, 0.3);
+  background: rgba(74, 111, 165, 0.05);
+}
+
+.manage-action-btn.edit-btn:hover {
+  background: rgba(74, 111, 165, 0.15);
+  border-color: #4a6fa5;
+}
+
+.manage-action-btn.delete-btn {
+  color: #d1562b;
+  border-color: rgba(209, 86, 43, 0.3);
+  background: rgba(209, 86, 43, 0.05);
+}
+
+.manage-action-btn.delete-btn:hover {
+  background: rgba(209, 86, 43, 0.15);
+  border-color: #d1562b;
+}
+
 /* MEDIA QUERIES PARA CELULAR */
 @media (max-width: 768px) {
+  .map-container {
+    height: 100dvh;
+    align-items: flex-start;
+  }
+
+  .map-wrapper {
+    width: 140%;
+    max-width: none;
+  }
+
+  .shifted-layer {
+    /* Centrado horizontal perfecto (0) y desplazado un poco hacia abajo (10vh) */
+    transform: translateX(0) translateY(10vh) !important;
+  }
+
   .map-sidebar {
     top: auto;
-    bottom: 20px;
-    left: 15px;
-    right: 15px;
-    width: auto;
-    max-height: 40vh;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 38dvh;
+    border-radius: 20px 20px 0 0;
+    border: none;
+    border-top: 2px solid #4a3827;
+    z-index: 20;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2);
+    padding: 20px 15px;
+    background-color: #ebd6be;
   }
 
   .map-overlay {
     padding: 1rem;
-    padding-top: 3rem; /* Para que baje un poco por si hay notch */
+    padding-top: 2rem;
+  }
+
+  .map-bottom-container {
+    position: absolute;
+    bottom: calc(38dvh + 15px);
+    right: 15px;
+  }
+
+  .map-stats-box {
+    min-width: 120px;
+    padding: 10px 20px;
+    transform: rotate(0deg);
+  }
+
+  .stats-number {
+    font-size: 2.2rem;
+  }
+
+  .stats-label {
+    font-size: 0.85rem;
+  }
+
+  .map-title-container {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    margin-top: 0 !important;
+    margin-left: 0 !important;
   }
 
   .map-title-container img {
-    max-width: 180px !important; /* Más pequeño en celular */
+    max-width: 110px !important;
   }
 
   .icon-btn.dark-btn {
     width: 45px;
     height: 45px;
     font-size: 1.4rem;
-  }
-
-  /* El shifted-layer empuja mucho el mapa en celular, vamos a reducirlo */
-  .shifted-layer {
-    transform: translateX(0) !important;
   }
 }

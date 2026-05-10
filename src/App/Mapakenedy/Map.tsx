@@ -5,11 +5,12 @@ import PointDetailModal from '../ModalDetalles(Descripcion_Media_Comentarios)/Po
 import InfoModal from '../AcercaProyecto/InfoModal';
 import AdminAuthModal from '../../../admin/AdminAuthModal';
 import AdminLogoutModal from '../../../admin/AdminLogoutModal';
+import ManagePlacesModal from '../AdminLugares/ManagePlacesModal';
 import type { PointOfInterest } from '../../types';
 import './Map.css';
 
 const Map = () => {
-  const { points, isAdmin, setIsAdmin, addPoint, isFirstVisit, markFirstVisitDone } = useAppContext();
+  const { points, isAdmin, setIsAdmin, addPoint, isFirstVisit, markFirstVisitDone, visitedPoints, markPointAsVisited } = useAppContext();
   const [selectedPoint, setSelectedPoint] = useState<PointOfInterest | null>(null);
   const [hoveredPointId, setHoveredPointId] = useState<string | null>(null);
   const [modalOrigin, setModalOrigin] = useState<{ x: number, y: number } | null>(null);
@@ -25,6 +26,8 @@ const Map = () => {
   const [showAddPlaceModal, setShowAddPlaceModal] = useState(false);
   const [newPlaceX, setNewPlaceX] = useState(50);
   const [newPlaceY, setNewPlaceY] = useState(50);
+  const [addPlaceStep, setAddPlaceStep] = useState(1);
+  const [showManagePlacesModal, setShowManagePlacesModal] = useState(false);
 
   const closeModal = () => {
     setSelectedPoint(null);
@@ -97,6 +100,7 @@ const Map = () => {
     setNewPlaceY(50);
     setIsAddingPlace(false);
     setShowAddPlaceModal(false);
+    setAddPlaceStep(1);
   };
 
   return (
@@ -116,6 +120,7 @@ const Map = () => {
               point={point}
               onClick={(e) => {
                 markFirstVisitDone();
+                markPointAsVisited(point.id);
                 // Capturar el bounding rect exacto del marcador para el origen de la animación (Portal Expand)
                 if (e) {
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -130,6 +135,7 @@ const Map = () => {
                 setSelectedPoint(point);
               }}
               isHighlighted={hoveredPointId === point.id}
+              isFirstVisit={isFirstVisit}
             />
           ))}
         </div>
@@ -152,15 +158,6 @@ const Map = () => {
           </div>
 
           <div className="map-controls-top-right">
-            {isAdmin && (
-              <button
-                className="icon-btn dark-btn"
-                onClick={() => window.open('https://analytics.google.com/analytics/web/', '_blank')}
-                title="Ver Google Analytics"
-              >
-                📊
-              </button>
-            )}
             <button className={`icon-btn dark-btn ${isFirstVisit ? 'first-visit-pulse' : ''}`} onClick={() => { markFirstVisitDone(); setIsInfoOpen(true); }}>i</button>
           </div>
         </div>
@@ -200,6 +197,21 @@ const Map = () => {
                   </button>
                 </div>
               </li>
+              <li className="sidebar-item admin-sidebar-item">
+                <div className="sidebar-item-icon">
+                  <span style={{ fontSize: '1.4rem' }}>⚙️</span>
+                </div>
+                <div className="sidebar-item-info">
+                  <span className="sidebar-item-name">Gestionar lugares</span>
+                  <button
+                    className="sidebar-btn-map"
+                    type="button"
+                    onClick={() => setShowManagePlacesModal(true)}
+                  >
+                    Abrir gestor
+                  </button>
+                </div>
+              </li>
             </ul>
           ) : (
             <ul className="sidebar-list">
@@ -216,6 +228,7 @@ const Map = () => {
                       className="sidebar-item-icon" 
                       onClick={(e) => {
                         markFirstVisitDone();
+                        markPointAsVisited(point.id);
                         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
                         setModalOrigin({
                           x: rect.left + rect.width / 2,
@@ -236,6 +249,7 @@ const Map = () => {
                         className={`sidebar-btn-map ${isFirstVisit ? 'first-visit-pulse' : ''}`}
                         onClick={(e) => {
                           markFirstVisitDone();
+                          markPointAsVisited(point.id);
                           const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
                           setModalOrigin({
                             x: rect.left + rect.width / 2,
@@ -264,7 +278,7 @@ const Map = () => {
             <div className="tag-clip"></div>
             <div className="tag-eyelet"></div>
             <span className="stats-label">Lugares visitados:</span>
-            <span className="stats-number">{points.length}</span>
+            <span className="stats-number">{visitedPoints.length}</span>
           </div>
 
         </div>
@@ -300,92 +314,132 @@ const Map = () => {
       )}
 
       {showAddPlaceModal && (
-        <div className="admin-add-place-overlay" onClick={() => setShowAddPlaceModal(false)}>
+        <div className="admin-add-place-overlay" onClick={() => { setShowAddPlaceModal(false); setAddPlaceStep(1); }}>
           <div className="admin-add-place-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="auth-close-btn" onClick={() => setShowAddPlaceModal(false)} title="Cerrar">&times;</button>
-            <h3>Agregar nuevo lugar</h3>
+            <button className="auth-close-btn" onClick={() => { setShowAddPlaceModal(false); setAddPlaceStep(1); }} title="Cerrar">&times;</button>
+            <h3>Agregar nuevo lugar (Paso {addPlaceStep} de 3)</h3>
             <form className="admin-add-place-form" onSubmit={handleAddPlace}>
-              <label>
-                Nombre del lugar
-                <input
-                  type="text"
-                  value={newPlaceName}
-                  onChange={(e) => setNewPlaceName(e.target.value)}
-                  required
-                />
-              </label>
+              {addPlaceStep === 1 && (
+                <>
+                  <label>
+                    Nombre del lugar
+                    <input
+                      type="text"
+                      value={newPlaceName}
+                      onChange={(e) => setNewPlaceName(e.target.value)}
+                      required
+                    />
+                  </label>
 
-              <label>
-                Historia
-                <textarea
-                  value={newPlaceDescription}
-                  onChange={(e) => setNewPlaceDescription(e.target.value)}
-                  rows={4}
-                  required
-                />
-              </label>
+                  <label>
+                    Historia
+                    <textarea
+                      value={newPlaceDescription}
+                      onChange={(e) => setNewPlaceDescription(e.target.value)}
+                      rows={4}
+                      required
+                    />
+                  </label>
+                </>
+              )}
 
-              <div className="coordinates-group">
-                <label>
-                  Posición X (0-100)
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={newPlaceX}
-                    onChange={(e) => setNewPlaceX(Number(e.target.value))}
-                    required
-                  />
-                </label>
-                <label>
-                  Posición Y (0-100)
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={newPlaceY}
-                    onChange={(e) => setNewPlaceY(Number(e.target.value))}
-                    required
-                  />
-                </label>
+              {addPlaceStep === 2 && (
+                <div className="coordinates-group">
+                  <label>
+                    Posición X (0-100)
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={newPlaceX}
+                      onChange={(e) => setNewPlaceX(Number(e.target.value))}
+                      required
+                    />
+                  </label>
+                  <label>
+                    Posición Y (0-100)
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={newPlaceY}
+                      onChange={(e) => setNewPlaceY(Number(e.target.value))}
+                      required
+                    />
+                  </label>
+                </div>
+              )}
+
+              {addPlaceStep === 3 && (
+                <>
+                  <label>
+                    Fotos (puedes seleccionar varias)
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => handleImageFilesChange(e.target.files)}
+                    />
+                  </label>
+
+                  <label>
+                    Link del video
+                    <input
+                      type="url"
+                      value={newVideoLink}
+                      onChange={(e) => setNewVideoLink(e.target.value)}
+                      placeholder="https://"
+                    />
+                  </label>
+
+                  <label>
+                    Link del podcast
+                    <input
+                      type="url"
+                      value={newPodcastLink}
+                      onChange={(e) => setNewPodcastLink(e.target.value)}
+                      placeholder="https://"
+                    />
+                  </label>
+                </>
+              )}
+
+              <div className="form-navigation-buttons">
+                {addPlaceStep > 1 ? (
+                  <button type="button" className="sidebar-btn-map" onClick={() => setAddPlaceStep(prev => prev - 1)}>
+                    Atrás
+                  </button>
+                ) : (
+                  <div></div>
+                )}
+                
+                {addPlaceStep < 3 ? (
+                  <button 
+                    type="button" 
+                    className="sidebar-btn-map" 
+                    onClick={() => {
+                      if (addPlaceStep === 1 && (!newPlaceName.trim() || !newPlaceDescription.trim())) {
+                        alert('Por favor completa el nombre y la historia.');
+                        return;
+                      }
+                      setAddPlaceStep(prev => prev + 1)
+                    }}
+                  >
+                    Siguiente
+                  </button>
+                ) : (
+                  <button className="sidebar-btn-map" type="submit" disabled={isAddingPlace}>
+                    {isAddingPlace ? 'Guardando...' : 'Agregar lugar'}
+                  </button>
+                )}
               </div>
-
-              <label>
-                Fotos (puedes seleccionar varias)
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(e) => handleImageFilesChange(e.target.files)}
-                />
-              </label>
-
-              <label>
-                Link del video
-                <input
-                  type="url"
-                  value={newVideoLink}
-                  onChange={(e) => setNewVideoLink(e.target.value)}
-                  placeholder="https://"
-                />
-              </label>
-
-              <label>
-                Link del podcast
-                <input
-                  type="url"
-                  value={newPodcastLink}
-                  onChange={(e) => setNewPodcastLink(e.target.value)}
-                  placeholder="https://"
-                />
-              </label>
-
-              <button className="sidebar-btn-map" type="submit" disabled={isAddingPlace}>
-                {isAddingPlace ? 'Guardando...' : 'Agregar lugar'}
-              </button>
             </form>
           </div>
         </div>
+      )}
+
+      {showManagePlacesModal && (
+        <ManagePlacesModal onClose={() => setShowManagePlacesModal(false)} />
       )}
     </div>
   );

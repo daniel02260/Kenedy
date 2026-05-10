@@ -6,9 +6,10 @@ interface PointMarkerProps {
   point: PointOfInterest;
   onClick: (e?: React.MouseEvent) => void;
   isHighlighted?: boolean;
+  isFirstVisit?: boolean;
 }
 
-const PointMarker = ({ point, onClick, isHighlighted }: PointMarkerProps) => {
+const PointMarker = ({ point, onClick, isHighlighted, isFirstVisit }: PointMarkerProps) => {
   // Ajustamos la posición 
   const style: CSSProperties = {
     left: `${point.x}%`, 
@@ -25,7 +26,7 @@ const PointMarker = ({ point, onClick, isHighlighted }: PointMarkerProps) => {
 
   return (
     <div 
-      className={`point-marker-circle ${isHighlighted ? 'highlighted' : ''} ${isTooltipUp ? 'tooltip-up' : ''}`} 
+      className={`point-marker-circle ${isHighlighted ? 'highlighted' : ''} ${isTooltipUp ? 'tooltip-up' : ''} ${isFirstVisit ? 'first-visit-attention' : ''}`} 
       style={style} 
       onClick={onClick}
     >

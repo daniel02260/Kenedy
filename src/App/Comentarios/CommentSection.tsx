@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import './CommentSection.css';
 
@@ -7,30 +7,56 @@ interface CommentSectionProps {
 }
 
 const CommentSection = ({ pointId }: CommentSectionProps) => {
-  const { points, addComment, deleteComment, isAdmin } = useAppContext();
+  const { points, addComment, editComment, deleteComment, likeComment, isAdmin } = useAppContext();
   const point = points.find(p => p.id === pointId);
   const comments = point?.comments || [];
 
   const [newComment, setNewComment] = useState('');
   const [authorName, setAuthorName] = useState('');
   const [authorEmail, setAuthorEmail] = useState('');
+  const [savedEmail, setSavedEmail] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editingCommentText, setEditingCommentText] = useState('');
+
+  useEffect(() => {
+    const email = localStorage.getItem('kennedy_user_email');
+    if (email) {
+      setSavedEmail(email);
+      setAuthorEmail(email); // Precargar email si existe
+    }
+  }, []);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!newComment.trim() || !authorName.trim() || !authorEmail.trim()) return;
 
+    // Validación de correo electrónico
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(authorEmail)) {
+      alert("Por favor ingresa un correo electrónico válido (ej. usuario@dominio.com).");
+      return;
+    }
+
+    localStorage.setItem('kennedy_user_email', authorEmail.toLowerCase());
+    setSavedEmail(authorEmail.toLowerCase());
+
     const comment = {
       id: Date.now().toString(),
       author: authorName,
-      email: authorEmail,
+      email: authorEmail.toLowerCase(),
       text: newComment,
       date: new Date().toISOString(),
     };
 
     addComment(pointId, comment);
     setNewComment('');
-    setAuthorName('');
-    setAuthorEmail('');
+    // No borramos el nombre y el correo para que sea más fácil volver a comentar
+  };
+
+  const handleSaveEdit = (commentId: string) => {
+    if (!editingCommentText.trim()) return;
+    editComment(pointId, commentId, editingCommentText);
+    setEditingCommentId(null);
   };
 
   return (
@@ -51,17 +77,45 @@ const CommentSection = ({ pointId }: CommentSectionProps) => {
                 <span className="comment-date typewriter-text">
                   {new Date(comment.date).toLocaleDateString()}
                 </span>
-                {isAdmin && (
-                  <button
-                    className="delete-comment-btn"
-                    onClick={() => deleteComment(pointId, comment.id)}
-                    title="Eliminar como administrador"
-                  >
-                    Tachar ✗
-                  </button>
-                )}
+                <div className="comment-actions-row">
+                  {savedEmail && comment.email === savedEmail ? (
+                    <>
+                      <button className="action-btn-sm edit" onClick={() => { setEditingCommentId(comment.id); setEditingCommentText(comment.text); }}>✏️</button>
+                      <button className="action-btn-sm delete" onClick={() => { if(window.confirm('¿Borrar tu firma?')) deleteComment(pointId, comment.id); }}>🗑️</button>
+                    </>
+                  ) : (
+                    <button className="action-btn-sm like" onClick={() => likeComment(pointId, comment.id)} title="Me gusta">
+                      ❤️ {comment.likes || 0}
+                    </button>
+                  )}
+                  {isAdmin && (!savedEmail || comment.email !== savedEmail) && (
+                    <button
+                      className="delete-comment-btn"
+                      onClick={() => deleteComment(pointId, comment.id)}
+                      title="Eliminar como administrador"
+                    >
+                      Tachar ✗
+                    </button>
+                  )}
+                </div>
               </div>
-              <p className="comment-text cursive-text">{comment.text}</p>
+              
+              {editingCommentId === comment.id ? (
+                <div className="edit-comment-area">
+                  <textarea 
+                    value={editingCommentText} 
+                    onChange={(e) => setEditingCommentText(e.target.value)}
+                    className="antique-input antique-textarea"
+                    rows={3}
+                  />
+                  <div className="edit-actions">
+                    <button className="action-btn-sm save" onClick={() => handleSaveEdit(comment.id)}>Guardar</button>
+                    <button className="action-btn-sm cancel" onClick={() => setEditingCommentId(null)}>Cancelar</button>
+                  </div>
+                </div>
+              ) : (
+                <p className="comment-text cursive-text">{comment.text}</p>
+              )}
             </div>
           ))
         )}

@@ -40,6 +40,25 @@
   to { box-shadow: 0 10px 25px rgba(0,0,0,0.6), 0 0 25px rgba(255, 215, 100, 1); }
 }
 
+@keyframes markerJumpAttention {
+  0%, 100% {
+    transform: translate(-50%, -50%) rotate(-8deg) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -65%) rotate(-8deg) scale(1.05);
+  }
+}
+
+.point-marker-circle.first-visit-attention {
+  animation: markerJumpAttention 2s ease-in-out infinite;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 255, 255, 0.6);
+}
+
+.point-marker-circle.first-visit-attention:hover,
+.point-marker-circle.first-visit-attention.highlighted {
+  animation: none; /* Se detiene al hacer hover */
+}
+
 .circle-inner {
   width: 100%;
   height: 100%;
@@ -219,4 +238,23 @@
   bottom: -6px;
   border-bottom: none;
   border-top: 7px solid #ebd6be;
+}
+
+@media (max-width: 768px) {
+  .point-marker-circle {
+    width: 65px;
+    height: 65px;
+    border-width: 2px;
+  }
+  .circle-inner {
+    border-width: 1.5px;
+    padding: 3px;
+  }
+  .circle-text {
+    font-size: 0.5rem;
+  }
+  .point-marker-circle:hover,
+  .point-marker-circle.highlighted {
+    transform: translate(-50%, -50%) scale(1.1) rotate(0deg);
+  }
 }
