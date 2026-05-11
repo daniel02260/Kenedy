@@ -10,7 +10,7 @@ import type { PointOfInterest } from '../../types';
 import './Map.css';
 
 const Map = () => {
-  const { points, isAdmin, setIsAdmin, addPoint, isFirstVisit, markFirstVisitDone, visitedPoints, markPointAsVisited } = useAppContext();
+  const { points, isAdmin, setIsAdmin, addPoint, isFirstVisit, markFirstVisitDone, visitedPoints, markPointAsVisited, previewPoint } = useAppContext();
   const [selectedPoint, setSelectedPoint] = useState<PointOfInterest | null>(null);
   const [hoveredPointId, setHoveredPointId] = useState<string | null>(null);
   const [modalOrigin, setModalOrigin] = useState<{ x: number, y: number } | null>(null);
@@ -21,6 +21,7 @@ const Map = () => {
   const [newPlaceDescription, setNewPlaceDescription] = useState('');
   const [newVideoLink, setNewVideoLink] = useState('');
   const [newPodcastLink, setNewPodcastLink] = useState('');
+  const [newCoverImage, setNewCoverImage] = useState<File | null>(null);
   const [newImages, setNewImages] = useState<File[]>([]);
   const [isAddingPlace, setIsAddingPlace] = useState(false);
   const [showAddPlaceModal, setShowAddPlaceModal] = useState(false);
@@ -52,6 +53,14 @@ const Map = () => {
     setShowAdminLogout(false);
   };
 
+  const handleCoverImageChange = (files: FileList | null) => {
+    if (files && files.length > 0) {
+      setNewCoverImage(files[0]);
+    } else {
+      setNewCoverImage(null);
+    }
+  };
+
   const handleImageFilesChange = (files: FileList | null) => {
     if (!files) return;
     setNewImages(Array.from(files));
@@ -69,7 +78,13 @@ const Map = () => {
     if (!newPlaceName.trim() || !newPlaceDescription.trim()) return;
     setIsAddingPlace(true);
 
-    const imageMedia = await Promise.all(
+    const coverMedia = newCoverImage ? [{
+      type: 'image' as const,
+      url: await toBase64(newCoverImage),
+      title: 'Portada - ' + newCoverImage.name
+    }] : [];
+
+    const carouselMedia = await Promise.all(
       newImages.map(async (file) => ({
         type: 'image' as const,
         url: await toBase64(file),
@@ -78,7 +93,8 @@ const Map = () => {
     );
 
     const media: PointOfInterest['media'] = [
-      ...imageMedia,
+      ...coverMedia,
+      ...carouselMedia,
       ...(newVideoLink.trim() ? [{ type: 'video' as const, url: newVideoLink.trim(), title: 'Video' }] : []),
       ...(newPodcastLink.trim() ? [{ type: 'podcast' as const, url: newPodcastLink.trim(), title: 'Podcast' }] : [])
     ];
@@ -95,6 +111,7 @@ const Map = () => {
     setNewPlaceDescription('');
     setNewVideoLink('');
     setNewPodcastLink('');
+    setNewCoverImage(null);
     setNewImages([]);
     setNewPlaceX(50);
     setNewPlaceY(50);
@@ -138,6 +155,22 @@ const Map = () => {
               isFirstVisit={isFirstVisit}
             />
           ))}
+
+          {/* Preview Marker para el Paso 2 de agregar lugar */}
+          {addPlaceStep === 2 && (
+            <div 
+              className="preview-marker" 
+              style={{ left: `${newPlaceX}%`, top: `${newPlaceY}%` }}
+            />
+          )}
+
+          {/* Preview Marker desde el contexto (para editar lugares) */}
+          {previewPoint && (
+            <div 
+              className="preview-marker" 
+              style={{ left: `${previewPoint.x}%`, top: `${previewPoint.y}%` }}
+            />
+          )}
         </div>
       </div>
 
@@ -278,7 +311,9 @@ const Map = () => {
             <div className="tag-clip"></div>
             <div className="tag-eyelet"></div>
             <span className="stats-label">Lugares visitados:</span>
-            <span className="stats-number">{visitedPoints.length}</span>
+            <span className="stats-number">
+              {Math.min(visitedPoints.filter(id => points.some(p => p.id === id)).length, points.length)}
+            </span>
           </div>
 
         </div>
@@ -314,7 +349,7 @@ const Map = () => {
       )}
 
       {showAddPlaceModal && (
-        <div className="admin-add-place-overlay" onClick={() => { setShowAddPlaceModal(false); setAddPlaceStep(1); }}>
+        <div className={`admin-add-place-overlay ${addPlaceStep === 2 ? 'preview-mode' : ''}`} onClick={() => { setShowAddPlaceModal(false); setAddPlaceStep(1); }}>
           <div className="admin-add-place-modal" onClick={(e) => e.stopPropagation()}>
             <button className="auth-close-btn" onClick={() => { setShowAddPlaceModal(false); setAddPlaceStep(1); }} title="Cerrar">&times;</button>
             <h3>Agregar nuevo lugar (Paso {addPlaceStep} de 3)</h3>
@@ -373,7 +408,17 @@ const Map = () => {
               {addPlaceStep === 3 && (
                 <>
                   <label>
-                    Fotos (puedes seleccionar varias)
+                    Foto de portada principal
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleCoverImageChange(e.target.files)}
+                      required
+                    />
+                  </label>
+
+                  <label>
+                    Fotos del carrusel (puedes seleccionar varias)
                     <input
                       type="file"
                       accept="image/*"

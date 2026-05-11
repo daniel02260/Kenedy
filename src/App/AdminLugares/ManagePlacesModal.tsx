@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import type { PointOfInterest } from '../../types';
 
@@ -7,7 +7,7 @@ interface ManagePlacesModalProps {
 }
 
 const ManagePlacesModal = ({ onClose }: ManagePlacesModalProps) => {
-  const { points, deletePoint, editPoint } = useAppContext();
+  const { points, deletePoint, editPoint, setPreviewPoint } = useAppContext();
   const [editingPoint, setEditingPoint] = useState<PointOfInterest | null>(null);
   
   // Edit Form States
@@ -18,11 +18,24 @@ const ManagePlacesModal = ({ onClose }: ManagePlacesModalProps) => {
   const [editY, setEditY] = useState(50);
   const [editVideoLink, setEditVideoLink] = useState('');
   const [editPodcastLink, setEditPodcastLink] = useState('');
-  // For simplicity, we might just keep existing media or allow replacing everything.
-  // Replacing images can be complex if we want to keep some. We will allow adding new images 
-  // that will OVERWRITE the old ones for simplicity, or we can just skip image editing if no new files are provided.
+  
+  const [editCoverImage, setEditCoverImage] = useState<File | null>(null);
   const [newImages, setNewImages] = useState<File[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Sync preview point when editing a place
+  useEffect(() => {
+    if (editingPoint && editStep === 2) {
+      setPreviewPoint({ x: editX, y: editY });
+    } else {
+      setPreviewPoint(null);
+    }
+  }, [editX, editY, editStep, editingPoint, setPreviewPoint]);
+
+  const handleClose = () => {
+    setPreviewPoint(null);
+    onClose();
+  };
 
   const handleDelete = (point: PointOfInterest) => {
     if (window.confirm(`¿Estás seguro de que deseas eliminar "${point.name}"?`)) {
@@ -42,6 +55,7 @@ const ManagePlacesModal = ({ onClose }: ManagePlacesModalProps) => {
     
     setEditVideoLink(video ? video.url : '');
     setEditPodcastLink(podcast ? podcast.url : '');
+    setEditCoverImage(null);
     setNewImages([]);
     setEditStep(1);
   };
@@ -58,34 +72,49 @@ const ManagePlacesModal = ({ onClose }: ManagePlacesModalProps) => {
     if (!editingPoint) return;
     setIsSaving(true);
 
-    let updatedMedia = [...editingPoint.media];
+    let currentMedia = [...editingPoint.media];
 
-    // If new images are selected, we replace old images.
-    // Otherwise, we keep old images.
+    // Separate existing images
+    let imageMedia = currentMedia.filter(m => m.type === 'image');
+    const nonImageMedia = currentMedia.filter(m => m.type !== 'image');
+
+    // Handle Cover Image Update
+    if (editCoverImage) {
+      const coverBase64 = await toBase64(editCoverImage);
+      const newCover = { type: 'image' as const, url: coverBase64, title: 'Portada' };
+      if (imageMedia.length > 0) {
+        imageMedia[0] = newCover;
+      } else {
+        imageMedia = [newCover];
+      }
+    }
+
+    // Handle Carousel Images Update
     if (newImages.length > 0) {
-      const imageMedia = await Promise.all(
+      const carouselItems = await Promise.all(
         newImages.map(async (file) => ({
           type: 'image' as const,
           url: await toBase64(file),
           title: file.name
         }))
       );
-      // Remove old images
-      updatedMedia = updatedMedia.filter(m => m.type !== 'image');
-      // Add new ones
-      updatedMedia = [...updatedMedia, ...imageMedia];
+      // Replace everything after the first image (the cover)
+      const cover = imageMedia.length > 0 ? [imageMedia[0]] : [];
+      imageMedia = [...cover, ...carouselItems];
     }
 
+    let finalMedia = [...imageMedia, ...nonImageMedia];
+
     // Update video
-    updatedMedia = updatedMedia.filter(m => m.type !== 'video');
+    finalMedia = finalMedia.filter(m => m.type !== 'video');
     if (editVideoLink.trim()) {
-      updatedMedia.push({ type: 'video', url: editVideoLink.trim(), title: 'Video' });
+      finalMedia.push({ type: 'video', url: editVideoLink.trim(), title: 'Video' });
     }
 
     // Update podcast
-    updatedMedia = updatedMedia.filter(m => m.type !== 'podcast');
+    finalMedia = finalMedia.filter(m => m.type !== 'podcast');
     if (editPodcastLink.trim()) {
-      updatedMedia.push({ type: 'podcast', url: editPodcastLink.trim(), title: 'Podcast' });
+      finalMedia.push({ type: 'podcast', url: editPodcastLink.trim(), title: 'Podcast' });
     }
 
     editPoint(editingPoint.id, {
@@ -93,10 +122,11 @@ const ManagePlacesModal = ({ onClose }: ManagePlacesModalProps) => {
       description: editDescription.trim(),
       x: editX,
       y: editY,
-      media: updatedMedia
+      media: finalMedia
     });
 
     setIsSaving(false);
+    setPreviewPoint(null);
     setEditingPoint(null);
   };
 
@@ -186,7 +216,20 @@ const ManagePlacesModal = ({ onClose }: ManagePlacesModalProps) => {
               {editStep === 3 && (
                 <>
                   <label>
-                    Nuevas Fotos (reemplazarán las actuales)
+                    Foto de portada principal (reemplazar)
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          setEditCoverImage(e.target.files[0]);
+                        }
+                      }}
+                    />
+                  </label>
+
+                  <label>
+                    Fotos del carrusel (reemplazar carrusel actual)
                     <input
                       type="file"
                       accept="image/*"
