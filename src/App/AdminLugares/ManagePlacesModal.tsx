@@ -131,9 +131,9 @@ const ManagePlacesModal = ({ onClose }: ManagePlacesModalProps) => {
   };
 
   return (
-    <div className="admin-add-place-overlay" onClick={onClose}>
+    <div className={`admin-add-place-overlay ${editingPoint && editStep === 2 ? 'preview-mode' : ''}`} onClick={handleClose}>
       <div className="admin-add-place-modal manage-places-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="auth-close-btn" onClick={onClose} title="Cerrar">&times;</button>
+        <button className="auth-close-btn" onClick={handleClose} title="Cerrar">&times;</button>
         
         {!editingPoint ? (
           <>
