@@ -178,7 +178,7 @@ const Map = () => {
       <div className="map-overlay">
 
         {/* Top Header */}
-        <div className="map-header">
+        <div className="map-header" style={{ position: 'relative' }}>
           <div className="map-title-container" style={{ background: 'transparent', boxShadow: 'none', padding: 0, marginLeft: '-20px', marginTop: '-20px' }}>
             <img
               src="/img/LOGO_EXPLORA_kENNEDY.png"
@@ -190,7 +190,12 @@ const Map = () => {
             />
           </div>
 
-          <div className="map-controls-top-right">
+          <div className="map-controls-top-right" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <img 
+              src="/img/logo_universidad.png" 
+              alt="Logo Universidad" 
+              style={{ maxWidth: '160px', height: 'auto', filter: 'drop-shadow(2px 4px 6px rgba(0,0,0,0.3))' }} 
+            />
             <button className={`icon-btn dark-btn ${isFirstVisit ? 'first-visit-pulse' : ''}`} onClick={() => { markFirstVisitDone(); setIsInfoOpen(true); }}>i</button>
           </div>
         </div>
