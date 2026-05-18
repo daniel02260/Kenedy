@@ -85,7 +85,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         return allPoints.map(staticPoint => {
           const savedPoint = parsedSaved.find(p => p.id === staticPoint.id);
           if (savedPoint) {
-             return { ...staticPoint, comments: savedPoint.comments || [] };
+            return { ...staticPoint, comments: savedPoint.comments || [] };
           }
           return staticPoint;
         });
@@ -102,9 +102,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const saved = localStorage.getItem('kennedy_point_stats_real');
     const savedDate = localStorage.getItem('kennedy_stats_last_date');
     const today = new Date().toISOString().split('T')[0];
-    
+
     let stats: PointStatsMap = {};
-    
+
     if (saved) {
       try {
         stats = JSON.parse(saved);
@@ -112,7 +112,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         console.error("Error al parsear estadísticas guardadas", e);
       }
     }
-    
+
     if (Object.keys(stats).length === 0) {
       allPoints.forEach(p => {
         stats[p.id] = {
@@ -126,17 +126,17 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     } else if (savedDate && savedDate !== today) {
       const lastDate = new Date(savedDate);
       const currentDate = new Date(today);
-      
-      const isNewWeek = lastDate.getDay() > currentDate.getDay() || 
-                        (currentDate.getTime() - lastDate.getTime() > 7 * 24 * 60 * 60 * 1000);
-      
-      const isNewMonth = lastDate.getMonth() !== currentDate.getMonth() || 
-                         lastDate.getFullYear() !== currentDate.getFullYear();
-      
+
+      const isNewWeek = lastDate.getDay() > currentDate.getDay() ||
+        (currentDate.getTime() - lastDate.getTime() > 7 * 24 * 60 * 60 * 1000);
+
+      const isNewMonth = lastDate.getMonth() !== currentDate.getMonth() ||
+        lastDate.getFullYear() !== currentDate.getFullYear();
+
       Object.keys(stats).forEach(id => {
         const item = stats[id];
         item.daily = 0;
-        
+
         if (isNewWeek) {
           item.weekly = 0;
         }
@@ -144,10 +144,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           item.monthly = 0;
         }
       });
-      
+
       localStorage.setItem('kennedy_stats_last_date', today);
     }
-    
+
     return stats;
   });
 
@@ -161,14 +161,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           .from('comments')
           .select('*')
           .order('created_at', { ascending: true });
-        
+
         if (error) {
           console.error("Error al descargar comentarios de Supabase:", error);
           return;
         }
 
         if (data) {
-          setPoints(prevPoints => 
+          setPoints(prevPoints =>
             prevPoints.map(point => {
               const liveCommentsForPoint = data
                 .filter((c: any) => c.point_id === point.id)
@@ -180,7 +180,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                   date: c.created_at,
                   likes: c.likes || 0
                 }));
-              
+
               return { ...point, comments: liveCommentsForPoint };
             })
           );
@@ -281,7 +281,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // ==========================================
   const addComment = async (pointId: string, comment: Comment) => {
     // 1. Guardar en el estado local de React inmediatamente para respuesta ultra fluida (Optimistic Update)
-    setPoints(prevPoints => 
+    setPoints(prevPoints =>
       prevPoints.map(point => {
         if (point.id === pointId) {
           return { ...point, comments: [...point.comments, comment] };
@@ -313,7 +313,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // ==========================================
   const deleteComment = async (pointId: string, commentId: string) => {
     // 1. Optimistic local update
-    setPoints(prevPoints => 
+    setPoints(prevPoints =>
       prevPoints.map(point => {
         if (point.id === pointId) {
           return { ...point, comments: point.comments.filter(c => c.id !== commentId) };
@@ -338,12 +338,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // ==========================================
   const editComment = async (pointId: string, commentId: string, newText: string) => {
     // 1. Optimistic local update
-    setPoints(prevPoints => 
+    setPoints(prevPoints =>
       prevPoints.map(point => {
         if (point.id === pointId) {
           return {
             ...point,
-            comments: point.comments.map(c => 
+            comments: point.comments.map(c =>
               c.id === commentId ? { ...c, text: newText } : c
             )
           };
@@ -368,9 +368,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // ==========================================
   const likeComment = async (pointId: string, commentId: string) => {
     let newLikesCount = 0;
-    
+
     // 1. Optimistic local update y capturar el nuevo conteo de likes
-    setPoints(prevPoints => 
+    setPoints(prevPoints =>
       prevPoints.map(point => {
         if (point.id === pointId) {
           return {

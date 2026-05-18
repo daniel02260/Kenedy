@@ -13,7 +13,7 @@ const AdminAuthModal = ({ onSuccess, onClose }: AdminAuthModalProps) => {
   const [error, setError] = useState(false);
   const [view, setView] = useState<'login' | 'forgot' | 'force-change-password'>('login');
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Estados para el cambio forzado de contraseña
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
@@ -70,7 +70,7 @@ const AdminAuthModal = ({ onSuccess, onClose }: AdminAuthModalProps) => {
               registeredAdmins = [];
             }
           }
-          
+
           const isValidLocal = registeredAdmins.find(
             (admin) => admin.email.toLowerCase() === trimmedEmail && admin.password === password
           );

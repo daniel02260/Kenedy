@@ -41,10 +41,10 @@ const RegisterAdminModal = ({ onClose }: RegisterAdminModalProps) => {
       // 1. Intentar registrar en Supabase (En vivo)
       const { error } = await supabase
         .from('administrators')
-        .insert([{ 
-          email: email.toLowerCase().trim(), 
-          password: password, 
-          must_change_password: true 
+        .insert([{
+          email: email.toLowerCase().trim(),
+          password: password,
+          must_change_password: true
         }]);
 
       if (error) {
