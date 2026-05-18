@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../src/lib/supabaseClient';
 import { useAppContext } from '../src/context/AppContext';
 import './AdminAuthModal.css';
 

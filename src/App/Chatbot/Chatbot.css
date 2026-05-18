@@ -279,11 +279,23 @@
   40% { transform: scale(1); }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+  .chatbot-wrapper {
+    bottom: 15px;
+    right: 15px;
+    z-index: 2000; /* Asegurarse de que esté por encima de otros elementos */
+  }
+
+  .chatbot-button {
+    width: auto;
+    padding: 10px 15px;
+    font-size: 0.85rem;
+  }
+
   .chatbot-window {
     width: calc(100vw - 30px);
-    right: 15px;
-    bottom: 80px;
-    height: 400px;
+    height: 60vh;
+    max-height: 400px;
+    margin-bottom: 10px;
   }
 }

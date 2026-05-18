@@ -1140,3 +1140,82 @@
   border-color: #d1562b;
   box-shadow: 0 10px 25px rgba(209, 86, 43, 0.4);
 }
+
+/* ========================================= */
+/* RESPONSIVE DESIGN - POINT DETAIL MODAL    */
+/* ========================================= */
+@media (max-width: 768px) {
+  .fs-hero-content {
+    padding: 30px 20px;
+  }
+  
+  .fs-title {
+    font-size: 2.8rem;
+    margin-bottom: 30px;
+  }
+
+  .fs-sticky-nav {
+    gap: 15px;
+    padding: 10px 15px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+  }
+  
+  .fs-sticky-nav::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .fs-sticky-nav button {
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .fs-section {
+    padding: 40px 15px;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
+  
+  .fs-description {
+    font-size: 1.05rem;
+  }
+
+  .carousel-item {
+    width: 90vw;
+    padding: 15px 15px 65px 15px;
+  }
+
+  .fs-carousel {
+    padding: 20px 5vw 60px 5vw;
+  }
+
+  .close-button-wrapper {
+    top: 15px;
+    right: 15px;
+  }
+
+  .sticky-close-button {
+    width: 45px;
+    height: 45px;
+    font-size: 1.4rem;
+  }
+  
+  .close-hint {
+    display: none; /* Ocultar "VOLVER" en móvil para ahorrar espacio */
+  }
+
+  .cassette-tape {
+    padding: 10px;
+  }
+  .cassette-window {
+    padding: 0 15px;
+  }
+  
+  .cinema-title {
+    font-size: 1rem;
+  }
+}

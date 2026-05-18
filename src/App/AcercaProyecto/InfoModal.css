@@ -282,3 +282,41 @@
   transform: scale(1.1) rotate(5deg);
   box-shadow: 0 8px 15px rgba(0,0,0,0.4);
 }
+
+/* ========================================= */
+/* RESPONSIVE DESIGN                         */
+/* ========================================= */
+@media (max-width: 768px) {
+  .info-modal-content {
+    width: 95%;
+    padding: 30px 15px;
+    max-height: 95vh;
+  }
+
+  .info-close-button {
+    top: 10px;
+    right: 15px;
+  }
+
+  .info-modal-body h2 {
+    font-size: 1.8rem;
+  }
+
+  .info-modal-body p {
+    font-size: 1rem;
+  }
+
+  .uni-logo {
+    width: 140px;
+  }
+
+  .info-tab-btn {
+    font-size: 1rem;
+    padding: 5px 10px;
+  }
+
+  .credit-item span {
+    font-size: 1rem;
+  }
+}
+

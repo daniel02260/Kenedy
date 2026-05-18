@@ -1,5 +1,6 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { useAppContext } from '../../context/AppContext';
+import { supabase } from '../../lib/supabaseClient';
 import type { PointOfInterest } from '../../types';
 
 interface ManagePlacesModalProps {
@@ -147,8 +148,7 @@ const ManagePlacesModal = ({ onClose }: ManagePlacesModalProps) => {
                   if (window.confirm('¿Deseas subir todos tus lugares locales a la nube para que sean visibles para todo el mundo?')) {
                     setIsSaving(true);
                     try {
-                      const { supabase } = await import('../../lib/supabaseClient');
-                      // Empujar todos los puntos como un solo documento JSON para que no necesites una tabla compleja relacional (estrategia NoSQL simplificada)
+                      // Usar supabase ya importado estáticamente al tope del archivo
                       const { error } = await supabase
                         .from('global_state')
                         .upsert({ id: 'places_v1', data: points });

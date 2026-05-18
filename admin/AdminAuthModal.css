@@ -158,3 +158,34 @@
 .auth-link-btn:hover {
   color: #d1562b;
 }
+
+/* ========================================= */
+/* RESPONSIVE DESIGN                         */
+/* ========================================= */
+@media (max-width: 768px) {
+  .admin-auth-card {
+    padding: 30px 20px;
+    width: 95%;
+  }
+
+  .auth-title {
+    font-size: 1.4rem;
+  }
+
+  .auth-text {
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+  }
+
+  .auth-input {
+    padding: 12px;
+    font-size: 1rem;
+    letter-spacing: 2px;
+  }
+
+  .auth-submit-btn {
+    padding: 12px 20px;
+    font-size: 1rem;
+    width: 100%;
+  }
+}
