@@ -82,6 +82,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     if (saved) {
       try {
         const parsedSaved: PointOfInterest[] = JSON.parse(saved);
+        // Mezclamos con los estáticos por si hay nuevos en el código
         return allPoints.map(staticPoint => {
           const savedPoint = parsedSaved.find(p => p.id === staticPoint.id);
           if (savedPoint) {
@@ -97,6 +98,29 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
     return allPoints;
   });
+
+  // Efecto global para cargar lugares de la nube (Supabase) al inicio
+  useEffect(() => {
+    const fetchGlobalPlaces = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('global_state')
+          .select('data')
+          .eq('id', 'places_v1')
+          .single();
+        
+        if (!error && data && data.data) {
+          // Si encontramos lugares en la nube, usamos esos
+          setPoints(data.data);
+          // Y actualizamos el caché local
+          localStorage.setItem('kennedy_points', JSON.stringify(data.data));
+        }
+      } catch (err) {
+        console.error('Error al sincronizar con la nube:', err);
+      }
+    };
+    fetchGlobalPlaces();
+  }, []);
 
   const [pointStats, setPointStats] = useState<PointStatsMap>(() => {
     const saved = localStorage.getItem('kennedy_point_stats_real');

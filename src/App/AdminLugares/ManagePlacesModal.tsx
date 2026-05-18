@@ -137,7 +137,43 @@ const ManagePlacesModal = ({ onClose }: ManagePlacesModalProps) => {
         
         {!editingPoint ? (
           <>
-            <h3>Gestionar Lugares</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <h3 style={{ margin: 0 }}>Gestionar Lugares</h3>
+              <button 
+                className="sidebar-btn-map" 
+                style={{ width: 'auto', padding: '8px 15px', fontSize: '0.9rem', background: isSaving ? '#6b7280' : '#3b82f6', border: 'none', color: 'white', borderRadius: '4px' }}
+                disabled={isSaving}
+                onClick={async () => {
+                  if (window.confirm('¿Deseas subir todos tus lugares locales a la nube para que sean visibles para todo el mundo?')) {
+                    setIsSaving(true);
+                    try {
+                      const { supabase } = await import('../../lib/supabaseClient');
+                      // Empujar todos los puntos como un solo documento JSON para que no necesites una tabla compleja relacional (estrategia NoSQL simplificada)
+                      const { error } = await supabase
+                        .from('global_state')
+                        .upsert({ id: 'places_v1', data: points });
+                      
+                      if (error) {
+                        if (error.code === '42P01') {
+                          alert('Error: Aún no has creado la tabla "global_state" en Supabase. Lee las instrucciones de la IA.');
+                        } else {
+                          alert(`Error al guardar: ${error.message}`);
+                        }
+                      } else {
+                        alert('☁️ ¡Lugares sincronizados con la nube exitosamente! Todos los usuarios podrán verlos ahora.');
+                      }
+                    } catch (err) {
+                      console.error(err);
+                      alert('Error de conexión.');
+                    } finally {
+                      setIsSaving(false);
+                    }
+                  }
+                }}
+              >
+                {isSaving ? 'Sincronizando...' : '☁️ Sincronizar a la Nube (Para todos)'}
+              </button>
+            </div>
             <div className="manage-places-list">
               {points.length === 0 ? (
                 <p style={{ textAlign: 'center', color: '#666' }}>No hay lugares documentados.</p>

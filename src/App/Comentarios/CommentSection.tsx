@@ -45,7 +45,7 @@ const CommentSection = ({ pointId }: CommentSectionProps) => {
     setSavedEmail(authorEmail.toLowerCase());
 
     const comment = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       author: authorName,
       email: authorEmail.toLowerCase(),
       text: newComment,

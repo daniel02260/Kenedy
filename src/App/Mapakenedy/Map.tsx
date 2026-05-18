@@ -9,6 +9,8 @@ import ManagePlacesModal from '../AdminLugares/ManagePlacesModal';
 import type { PointOfInterest } from '../../types';
 import PlacesStatsModal from '../AdminLugares/PlacesStatsModal';
 import RegisterAdminModal from '../../../admin/RegisterAdminModal';
+import ManageAdminsModal from '../../../admin/ManageAdminsModal';
+import ManageCommentsModal from '../../../admin/ManageCommentsModal';
 import './Map.css';
 
 const Map = () => {
@@ -33,6 +35,8 @@ const Map = () => {
   const [showManagePlacesModal, setShowManagePlacesModal] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showRegisterAdminModal, setShowRegisterAdminModal] = useState(false);
+  const [showManageAdminsModal, setShowManageAdminsModal] = useState(false);
+  const [showManageCommentsModal, setShowManageCommentsModal] = useState(false);
 
   const closeModal = () => {
     setSelectedPoint(null);
@@ -257,16 +261,31 @@ const Map = () => {
               </li>
               <li className="sidebar-item admin-sidebar-item">
                 <div className="sidebar-item-icon">
-                  <span style={{ fontSize: '1.4rem' }}>👤</span>
+                  <span style={{ fontSize: '1.4rem' }}>💬</span>
                 </div>
                 <div className="sidebar-item-info">
-                  <span className="sidebar-item-name">Crear administrador</span>
+                  <span className="sidebar-item-name">Auditoría Comentarios</span>
                   <button
                     className="sidebar-btn-map"
                     type="button"
-                    onClick={() => setShowRegisterAdminModal(true)}
+                    onClick={() => setShowManageCommentsModal(true)}
                   >
-                    Crear cuenta
+                    Abrir registros
+                  </button>
+                </div>
+              </li>
+              <li className="sidebar-item admin-sidebar-item">
+                <div className="sidebar-item-icon">
+                  <span style={{ fontSize: '1.4rem' }}>👥</span>
+                </div>
+                <div className="sidebar-item-info">
+                  <span className="sidebar-item-name">Directorio de Admins</span>
+                  <button
+                    className="sidebar-btn-map"
+                    type="button"
+                    onClick={() => setShowManageAdminsModal(true)}
+                  >
+                    Ver personal
                   </button>
                 </div>
               </li>
@@ -519,6 +538,17 @@ const Map = () => {
 
       {showRegisterAdminModal && (
         <RegisterAdminModal onClose={() => setShowRegisterAdminModal(false)} />
+      )}
+
+      {showManageAdminsModal && (
+        <ManageAdminsModal 
+          onClose={() => setShowManageAdminsModal(false)} 
+          onOpenCreate={() => setShowRegisterAdminModal(true)} 
+        />
+      )}
+
+      {showManageCommentsModal && (
+        <ManageCommentsModal onClose={() => setShowManageCommentsModal(false)} />
       )}
 
       {isAdmin && (
