@@ -425,27 +425,51 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // ==========================================
+  // AUTO-SINCRONIZAR LUGARES A SUPABASE (Para todo el mundo)
+  // ==========================================
+  const syncPlacesToCloud = async (updatedPoints: PointOfInterest[]) => {
+    try {
+      await supabase
+        .from('global_state')
+        .upsert({ id: 'places_v1', data: updatedPoints });
+    } catch (err) {
+      console.error('Error al sincronizar lugares con la nube:', err);
+    }
+  };
+
   const addPoint = (point: Omit<PointOfInterest, 'id' | 'comments'>) => {
-    setPoints(prevPoints => [
-      ...prevPoints,
-      {
-        ...point,
-        id: crypto.randomUUID(),
-        comments: []
-      }
-    ]);
+    const newPoint: PointOfInterest = {
+      ...point,
+      id: crypto.randomUUID(),
+      comments: []
+    };
+    setPoints(prevPoints => {
+      const updated = [...prevPoints, newPoint];
+      // Auto-sincronizar en segundo plano para todos los visitantes
+      syncPlacesToCloud(updated);
+      return updated;
+    });
   };
 
   const editPoint = (id: string, updates: Partial<PointOfInterest>) => {
-    setPoints(prevPoints =>
-      prevPoints.map(point =>
+    setPoints(prevPoints => {
+      const updated = prevPoints.map(point =>
         point.id === id ? { ...point, ...updates } : point
-      )
-    );
+      );
+      // Auto-sincronizar en segundo plano
+      syncPlacesToCloud(updated);
+      return updated;
+    });
   };
 
   const deletePoint = (id: string) => {
-    setPoints(prevPoints => prevPoints.filter(point => point.id !== id));
+    setPoints(prevPoints => {
+      const updated = prevPoints.filter(point => point.id !== id);
+      // Auto-sincronizar en segundo plano
+      syncPlacesToCloud(updated);
+      return updated;
+    });
   };
 
   const markFirstVisitDone = () => {
