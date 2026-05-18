@@ -7,10 +7,12 @@ import AdminAuthModal from '../../../admin/AdminAuthModal';
 import AdminLogoutModal from '../../../admin/AdminLogoutModal';
 import ManagePlacesModal from '../AdminLugares/ManagePlacesModal';
 import type { PointOfInterest } from '../../types';
+import PlacesStatsModal from '../AdminLugares/PlacesStatsModal';
+import RegisterAdminModal from '../../../admin/RegisterAdminModal';
 import './Map.css';
 
 const Map = () => {
-  const { points, isAdmin, setIsAdmin, addPoint, isFirstVisit, markFirstVisitDone, visitedPoints, markPointAsVisited, previewPoint } = useAppContext();
+  const { points, isAdmin, setIsAdmin, addPoint, isFirstVisit, markFirstVisitDone, visitedPoints, markPointAsVisited, previewPoint, registerPointVisit } = useAppContext();
   const [selectedPoint, setSelectedPoint] = useState<PointOfInterest | null>(null);
   const [hoveredPointId, setHoveredPointId] = useState<string | null>(null);
   const [modalOrigin, setModalOrigin] = useState<{ x: number, y: number } | null>(null);
@@ -29,6 +31,8 @@ const Map = () => {
   const [newPlaceY, setNewPlaceY] = useState(50);
   const [addPlaceStep, setAddPlaceStep] = useState(1);
   const [showManagePlacesModal, setShowManagePlacesModal] = useState(false);
+  const [showStatsModal, setShowStatsModal] = useState(false);
+  const [showRegisterAdminModal, setShowRegisterAdminModal] = useState(false);
 
   const closeModal = () => {
     setSelectedPoint(null);
@@ -138,6 +142,7 @@ const Map = () => {
               onClick={(e) => {
                 markFirstVisitDone();
                 markPointAsVisited(point.id);
+                registerPointVisit(point.id);
                 // Capturar el bounding rect exacto del marcador para el origen de la animación (Portal Expand)
                 if (e) {
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -250,6 +255,21 @@ const Map = () => {
                   </button>
                 </div>
               </li>
+              <li className="sidebar-item admin-sidebar-item">
+                <div className="sidebar-item-icon">
+                  <span style={{ fontSize: '1.4rem' }}>👤</span>
+                </div>
+                <div className="sidebar-item-info">
+                  <span className="sidebar-item-name">Crear administrador</span>
+                  <button
+                    className="sidebar-btn-map"
+                    type="button"
+                    onClick={() => setShowRegisterAdminModal(true)}
+                  >
+                    Crear cuenta
+                  </button>
+                </div>
+              </li>
             </ul>
           ) : (
             <ul className="sidebar-list">
@@ -267,6 +287,7 @@ const Map = () => {
                       onClick={(e) => {
                         markFirstVisitDone();
                         markPointAsVisited(point.id);
+                        registerPointVisit(point.id);
                         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
                         setModalOrigin({
                           x: rect.left + rect.width / 2,
@@ -288,6 +309,7 @@ const Map = () => {
                         onClick={(e) => {
                           markFirstVisitDone();
                           markPointAsVisited(point.id);
+                          registerPointVisit(point.id);
                           const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
                           setModalOrigin({
                             x: rect.left + rect.width / 2,
@@ -310,17 +332,16 @@ const Map = () => {
 
         {/* Bottom Elements */}
         <div className="map-bottom-container">
-
-          {/* Stats Box */}
-          <div className="map-stats-box">
-            <div className="tag-clip"></div>
-            <div className="tag-eyelet"></div>
-            <span className="stats-label">Lugares visitados:</span>
-            <span className="stats-number">
-              {Math.min(visitedPoints.filter(id => points.some(p => p.id === id)).length, points.length)}
-            </span>
-          </div>
-
+          {!isAdmin && (
+            <div className="map-stats-box">
+              <div className="tag-clip"></div>
+              <div className="tag-eyelet"></div>
+              <span className="stats-label">Lugares visitados:</span>
+              <span className="stats-number">
+                {Math.min(visitedPoints.filter(id => points.some(p => p.id === id)).length, points.length)}
+              </span>
+            </div>
+          )}
         </div>
 
       </div>
@@ -337,6 +358,10 @@ const Map = () => {
 
       {isInfoOpen && (
         <InfoModal onClose={() => setIsInfoOpen(false)} />
+      )}
+
+      {showStatsModal && (
+        <PlacesStatsModal onClose={() => setShowStatsModal(false)} />
       )}
 
       {showAdminAuth && (
@@ -490,6 +515,19 @@ const Map = () => {
 
       {showManagePlacesModal && (
         <ManagePlacesModal onClose={() => setShowManagePlacesModal(false)} />
+      )}
+
+      {showRegisterAdminModal && (
+        <RegisterAdminModal onClose={() => setShowRegisterAdminModal(false)} />
+      )}
+
+      {isAdmin && (
+        <button 
+          className="stats-toggle-btn"
+          onClick={() => setShowStatsModal(true)}
+        >
+          📊 Datos de lugares
+        </button>
       )}
     </div>
   );

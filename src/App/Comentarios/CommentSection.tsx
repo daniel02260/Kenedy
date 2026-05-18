@@ -17,6 +17,7 @@ const CommentSection = ({ pointId }: CommentSectionProps) => {
   const [savedEmail, setSavedEmail] = useState('');
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingCommentText, setEditingCommentText] = useState('');
+  const [dataTreatment, setDataTreatment] = useState(false);
 
   useEffect(() => {
     const email = localStorage.getItem('kennedy_user_email');
@@ -28,7 +29,10 @@ const CommentSection = ({ pointId }: CommentSectionProps) => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !authorName.trim() || !authorEmail.trim()) return;
+    if (!newComment.trim() || !authorName.trim() || !authorEmail.trim() || !dataTreatment) {
+      if (!dataTreatment) alert("Por favor acepta el tratamiento de datos personales.");
+      return;
+    }
 
     // Validación de correo electrónico
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -157,6 +161,19 @@ const CommentSection = ({ pointId }: CommentSectionProps) => {
             rows={4}
             className="antique-input antique-textarea"
           />
+        </div>
+        <div className="data-treatment-group">
+          <label className="checkbox-container">
+            <input 
+              type="checkbox" 
+              checked={dataTreatment} 
+              onChange={(e) => setDataTreatment(e.target.checked)} 
+              required 
+            />
+            <span className="checkbox-text">
+              Acepto el tratamiento de mis datos personales de acuerdo con la política de privacidad.
+            </span>
+          </label>
         </div>
         <button type="submit" className="submit-comment-btn wax-seal-btn">Enviar comentario</button>
       </form>
