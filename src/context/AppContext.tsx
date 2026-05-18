@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { PointOfInterest, Comment } from '../types';
 import { allPoints } from '../data/puntos';
+import { supabase } from '../lib/supabaseClient';
 
 export interface PointStats {
   daily: number;
@@ -53,7 +54,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [previewPoint, setPreviewPoint] = useState<{ x: number; y: number } | null>(null);
   const [isFirstVisit, setIsFirstVisit] = useState(() => {
     const visited = localStorage.getItem('kennedy_first_visit');
-    return !visited;//si no hay visited, es la primera vez
+    return !visited;
   });
   const [visitedPoints, setVisitedPoints] = useState<string[]>(() => {
     const saved = localStorage.getItem('kennedy_visited_points');
@@ -75,6 +76,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       chatbot: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     };
   });
+
   const [points, setPoints] = useState<PointOfInterest[]>(() => {
     const saved = localStorage.getItem('kennedy_points');
     if (saved) {
@@ -99,7 +101,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [pointStats, setPointStats] = useState<PointStatsMap>(() => {
     const saved = localStorage.getItem('kennedy_point_stats_real');
     const savedDate = localStorage.getItem('kennedy_stats_last_date');
-    const today = new Date().toISOString().split('T')[0]; // Ejemplo: "2026-05-17"
+    const today = new Date().toISOString().split('T')[0];
     
     let stats: PointStatsMap = {};
     
@@ -111,7 +113,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       }
     }
     
-    // Si la base de datos local está vacía, inicializamos todo en 0 absoluto (datos 100% reales)
     if (Object.keys(stats).length === 0) {
       allPoints.forEach(p => {
         stats[p.id] = {
@@ -123,21 +124,17 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       });
       localStorage.setItem('kennedy_stats_last_date', today);
     } else if (savedDate && savedDate !== today) {
-      // ¡SOLUCIÓN DE ELITE JURADO DE GRADO: Rollover de calendario automático real!
       const lastDate = new Date(savedDate);
       const currentDate = new Date(today);
       
-      // Comprobar si cambió la semana (semanas de 7 días o cambio del día de la semana)
       const isNewWeek = lastDate.getDay() > currentDate.getDay() || 
                         (currentDate.getTime() - lastDate.getTime() > 7 * 24 * 60 * 60 * 1000);
       
-      // Comprobar si cambió el mes
       const isNewMonth = lastDate.getMonth() !== currentDate.getMonth() || 
                          lastDate.getFullYear() !== currentDate.getFullYear();
       
       Object.keys(stats).forEach(id => {
         const item = stats[id];
-        // Reseteamos las visitas reales a 0 al pasar de ciclo calendario
         item.daily = 0;
         
         if (isNewWeek) {
@@ -153,6 +150,48 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     
     return stats;
   });
+
+  // ==========================================
+  // DISPARAR DESCARGA DE COMENTARIOS DESDE SUPABASE EN VIVO
+  // ==========================================
+  useEffect(() => {
+    const fetchLiveComments = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('comments')
+          .select('*')
+          .order('created_at', { ascending: true });
+        
+        if (error) {
+          console.error("Error al descargar comentarios de Supabase:", error);
+          return;
+        }
+
+        if (data) {
+          setPoints(prevPoints => 
+            prevPoints.map(point => {
+              const liveCommentsForPoint = data
+                .filter((c: any) => c.point_id === point.id)
+                .map((c: any) => ({
+                  id: c.id,
+                  author: c.author,
+                  email: c.email,
+                  text: c.text,
+                  date: c.created_at,
+                  likes: c.likes || 0
+                }));
+              
+              return { ...point, comments: liveCommentsForPoint };
+            })
+          );
+        }
+      } catch (err) {
+        console.error("Falla al descargar comentarios de Supabase:", err);
+      }
+    };
+
+    fetchLiveComments();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('kennedy_points', JSON.stringify(points));
@@ -237,7 +276,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const addComment = (pointId: string, comment: Comment) => {
+  // ==========================================
+  // SINCRONIZAR AGREGAR COMENTARIOS A SUPABASE
+  // ==========================================
+  const addComment = async (pointId: string, comment: Comment) => {
+    // 1. Guardar en el estado local de React inmediatamente para respuesta ultra fluida (Optimistic Update)
     setPoints(prevPoints => 
       prevPoints.map(point => {
         if (point.id === pointId) {
@@ -246,9 +289,30 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         return point;
       })
     );
+
+    // 2. Guardar en Supabase en segundo plano
+    try {
+      await supabase
+        .from('comments')
+        .insert([{
+          id: comment.id,
+          point_id: pointId,
+          author: comment.author,
+          email: comment.email,
+          text: comment.text,
+          likes: comment.likes || 0,
+          created_at: comment.date
+        }]);
+    } catch (err) {
+      console.error("Error de red al guardar comentario en Supabase:", err);
+    }
   };
 
-  const deleteComment = (pointId: string, commentId: string) => {
+  // ==========================================
+  // SINCRONIZAR ELIMINAR COMENTARIOS EN SUPABASE
+  // ==========================================
+  const deleteComment = async (pointId: string, commentId: string) => {
+    // 1. Optimistic local update
     setPoints(prevPoints => 
       prevPoints.map(point => {
         if (point.id === pointId) {
@@ -257,9 +321,23 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         return point;
       })
     );
+
+    // 2. Delete from Supabase
+    try {
+      await supabase
+        .from('comments')
+        .delete()
+        .eq('id', commentId);
+    } catch (err) {
+      console.error("Error de red al borrar comentario en Supabase:", err);
+    }
   };
 
-  const editComment = (pointId: string, commentId: string, newText: string) => {
+  // ==========================================
+  // SINCRONIZAR EDITAR COMENTARIOS EN SUPABASE
+  // ==========================================
+  const editComment = async (pointId: string, commentId: string, newText: string) => {
+    // 1. Optimistic local update
     setPoints(prevPoints => 
       prevPoints.map(point => {
         if (point.id === pointId) {
@@ -273,22 +351,54 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         return point;
       })
     );
+
+    // 2. Update in Supabase
+    try {
+      await supabase
+        .from('comments')
+        .update({ text: newText })
+        .eq('id', commentId);
+    } catch (err) {
+      console.error("Error de red al editar comentario en Supabase:", err);
+    }
   };
 
-  const likeComment = (pointId: string, commentId: string) => {
+  // ==========================================
+  // SINCRONIZAR ME GUSTA DE COMENTARIOS A SUPABASE
+  // ==========================================
+  const likeComment = async (pointId: string, commentId: string) => {
+    let newLikesCount = 0;
+    
+    // 1. Optimistic local update y capturar el nuevo conteo de likes
     setPoints(prevPoints => 
       prevPoints.map(point => {
         if (point.id === pointId) {
           return {
             ...point,
-            comments: point.comments.map(c => 
-              c.id === commentId ? { ...c, likes: (c.likes || 0) + 1 } : c
-            )
+            comments: point.comments.map(c => {
+              if (c.id === commentId) {
+                newLikesCount = (c.likes || 0) + 1;
+                return { ...c, likes: newLikesCount };
+              }
+              return c;
+            })
           };
         }
         return point;
       })
     );
+
+    // 2. Update in Supabase
+    if (newLikesCount > 0) {
+      try {
+        await supabase
+          .from('comments')
+          .update({ likes: newLikesCount })
+          .eq('id', commentId);
+      } catch (err) {
+        console.error("Error de red al dar like en Supabase:", err);
+      }
+    }
   };
 
   const addPoint = (point: Omit<PointOfInterest, 'id' | 'comments'>) => {

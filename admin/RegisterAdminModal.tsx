@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { supabase } from '../src/lib/supabaseClient';
 import './AdminAuthModal.css';
 
 interface RegisterAdminModalProps {
@@ -11,52 +12,74 @@ const RegisterAdminModal = ({ onClose }: RegisterAdminModalProps) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorText, setErrorText] = useState('');
   const [success, setSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorText('');
+    setIsLoading(true);
 
     if (!email.trim() || !password || !confirmPassword) {
       setErrorText('/// COMPLETE TODOS LOS CAMPOS ///');
+      setIsLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
       setErrorText('/// LAS CONTRASEÑAS NO COINCIDEN ///');
+      setIsLoading(false);
       return;
     }
 
     if (password.length < 6) {
       setErrorText('/// LA CLAVE DEBE TENER AL MENOS 6 CARACTERES ///');
+      setIsLoading(false);
       return;
     }
 
-    // Obtener administradores actuales de localStorage
-    const stored = localStorage.getItem('kennedy_admins');
-    let admins = [];
-    if (stored) {
-      try {
-        admins = JSON.parse(stored);
-      } catch (err) {
-        admins = [];
+    try {
+      // 1. Intentar registrar en Supabase (En vivo)
+      const { error } = await supabase
+        .from('administrators')
+        .insert([{ 
+          email: email.toLowerCase().trim(), 
+          password: password, 
+          must_change_password: true 
+        }]);
+
+      if (error) {
+        if (error.code === '23505') {
+          setErrorText('/// ESTE CORREO YA ESTÁ REGISTRADO EN SUPABASE ///');
+        } else {
+          setErrorText(`/// ERROR EN LA NUBE: ${error.message} ///`);
+        }
+        setIsLoading(false);
+        return;
       }
+
+      // 2. Guardar en localStorage como robustez/fallback
+      const stored = localStorage.getItem('kennedy_admins');
+      let admins = [];
+      if (stored) {
+        try {
+          admins = JSON.parse(stored);
+        } catch (err) {
+          admins = [];
+        }
+      }
+      admins.push({ email: email.toLowerCase().trim(), password, mustChangePassword: true });
+      localStorage.setItem('kennedy_admins', JSON.stringify(admins));
+
+      setSuccess(true);
+      setTimeout(() => {
+        onClose();
+      }, 2000);
+    } catch (err) {
+      console.error(err);
+      setErrorText('/// FALLA DE CONEXIÓN CON EL SERVIDOR DE SUPABASE ///');
+    } finally {
+      setIsLoading(false);
     }
-
-    // Verificar si el correo ya está registrado
-    const exists = admins.some((admin: any) => admin.email.toLowerCase() === email.toLowerCase());
-    if (exists || email.toLowerCase() === 'admin@explorakennedy.com') {
-      setErrorText('/// ESTE CORREO YA ESTÁ REGISTRADO ///');
-      return;
-    }
-
-    // Agregar nuevo administrador (con bandera para forzar cambio de contraseña)
-    admins.push({ email: email.toLowerCase(), password, mustChangePassword: true });
-    localStorage.setItem('kennedy_admins', JSON.stringify(admins));
-
-    setSuccess(true);
-    setTimeout(() => {
-      onClose();
-    }, 2000);
   };
 
   return (
@@ -95,6 +118,7 @@ const RegisterAdminModal = ({ onClose }: RegisterAdminModalProps) => {
                 onChange={(e) => { setEmail(e.target.value); setErrorText(''); }}
                 autoFocus
                 required
+                disabled={isLoading}
               />
 
               <input
@@ -104,6 +128,7 @@ const RegisterAdminModal = ({ onClose }: RegisterAdminModalProps) => {
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setErrorText(''); }}
                 required
+                disabled={isLoading}
               />
 
               <input
@@ -113,12 +138,13 @@ const RegisterAdminModal = ({ onClose }: RegisterAdminModalProps) => {
                 value={confirmPassword}
                 onChange={(e) => { setConfirmPassword(e.target.value); setErrorText(''); }}
                 required
+                disabled={isLoading}
               />
 
               {errorText && <p className="auth-error-text">{errorText}</p>}
 
-              <button type="submit" className="auth-submit-btn">
-                REGISTRAR NUEVO ACCESO
+              <button type="submit" className="auth-submit-btn" disabled={isLoading}>
+                {isLoading ? 'ENVIANDO CREDENCIAL...' : 'REGISTRAR NUEVO ACCESO'}
               </button>
             </form>
           </>
