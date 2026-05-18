@@ -57,6 +57,7 @@ const InfoModal = ({ onClose }: InfoModalProps) => {
                     <div className="developer-profile">
                       <img src="/img/daniel_nomelin.jpg" alt="Daniel Nomelin" className="credit-photo" />
                       <span>DANIEL NOMELIN OVIEDO</span>
+                      {/* --- Y javierntnt(https://github.com/javierntnt) basura --- */}
                     </div>
                   </div>
 
