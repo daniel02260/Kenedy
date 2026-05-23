@@ -63,7 +63,7 @@ const RegisterAdminModal = ({ onClose }: RegisterAdminModalProps) => {
       if (stored) {
         try {
           admins = JSON.parse(stored);
-        } catch (err) {
+        } catch (_err) {
           admins = [];
         }
       }

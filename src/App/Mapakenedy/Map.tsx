@@ -167,16 +167,16 @@ const Map = () => {
 
           {/* Preview Marker para el Paso 2 de agregar lugar */}
           {addPlaceStep === 2 && (
-            <div 
-              className="preview-marker" 
+            <div
+              className="preview-marker"
               style={{ left: `${newPlaceX}%`, top: `${newPlaceY}%` }}
             />
           )}
 
           {/* Preview Marker desde el contexto (para editar lugares) */}
           {previewPoint && (
-            <div 
-              className="preview-marker" 
+            <div
+              className="preview-marker"
               style={{ left: `${previewPoint.x}%`, top: `${previewPoint.y}%` }}
             />
           )}
@@ -200,11 +200,19 @@ const Map = () => {
           </div>
 
           <div className="map-controls-top-right" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <img 
-              src="/img/logo_universidad.png" 
-              alt="Logo Universidad" 
-              style={{ maxWidth: '160px', height: 'auto', filter: 'drop-shadow(2px 4px 6px rgba(0,0,0,0.3))' }} 
-            />
+            <a
+              href="https://www.uniagustiniana.edu.co"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="uni-logo-link"
+              title="Ir a Uniagustiniana"
+            >
+              <img
+                src="/img/logo_universidad.png"
+                alt="Logo Universidad"
+                style={{ maxWidth: '160px', height: 'auto', filter: 'drop-shadow(2px 4px 6px rgba(0,0,0,0.3))', cursor: 'pointer' }}
+              />
+            </a>
             <button className={`icon-btn dark-btn ${isFirstVisit ? 'first-visit-pulse' : ''}`} onClick={() => { markFirstVisitDone(); setIsInfoOpen(true); }}>i</button>
           </div>
         </div>
@@ -301,8 +309,8 @@ const Map = () => {
                     onMouseEnter={() => setHoveredPointId(point.id)}
                     onMouseLeave={() => setHoveredPointId(null)}
                   >
-                    <div 
-                      className="sidebar-item-icon" 
+                    <div
+                      className="sidebar-item-icon"
                       onClick={(e) => {
                         markFirstVisitDone();
                         markPointAsVisited(point.id);
@@ -506,11 +514,11 @@ const Map = () => {
                 ) : (
                   <div></div>
                 )}
-                
+
                 {addPlaceStep < 3 ? (
-                  <button 
-                    type="button" 
-                    className="sidebar-btn-map" 
+                  <button
+                    type="button"
+                    className="sidebar-btn-map"
                     onClick={() => {
                       if (addPlaceStep === 1 && (!newPlaceName.trim() || !newPlaceDescription.trim())) {
                         alert('Por favor completa el nombre y la historia.');
@@ -541,9 +549,9 @@ const Map = () => {
       )}
 
       {showManageAdminsModal && (
-        <ManageAdminsModal 
-          onClose={() => setShowManageAdminsModal(false)} 
-          onOpenCreate={() => setShowRegisterAdminModal(true)} 
+        <ManageAdminsModal
+          onClose={() => setShowManageAdminsModal(false)}
+          onOpenCreate={() => setShowRegisterAdminModal(true)}
         />
       )}
 
@@ -552,7 +560,7 @@ const Map = () => {
       )}
 
       {isAdmin && (
-        <button 
+        <button
           className="stats-toggle-btn"
           onClick={() => setShowStatsModal(true)}
         >

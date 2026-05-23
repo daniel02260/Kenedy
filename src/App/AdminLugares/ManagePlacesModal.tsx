@@ -72,7 +72,7 @@ const ManagePlacesModal = ({ onClose }: ManagePlacesModalProps) => {
     if (!editingPoint) return;
     setIsSaving(true);
 
-    let currentMedia = [...editingPoint.media];
+    const currentMedia = [...editingPoint.media];
 
     // Separate existing images
     let imageMedia = currentMedia.filter(m => m.type === 'image');

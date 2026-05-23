@@ -192,7 +192,7 @@ const LineChart = ({ labels, datasets }: LineChartProps) => {
 };
 
 // Helper para generar el SVG del gráfico optimizado en tamaño para el PDF (1 sola hoja)
-const getSVGHtmlForPrint = (labels: string[], datasets: any[]) => {
+const getSVGHtmlForPrint = (labels: string[], datasets: { label: string; color: string; data: number[] }[]) => {
   const svgWidth = 600;
   const svgHeight = 145; // Altura reducida para garantizar el ajuste exacto en 1 sola hoja
   const padLeft = 35;
@@ -737,7 +737,7 @@ const PlacesStatsModal = ({ onClose }: PlacesStatsModalProps) => {
                 Lugar Más Consultado en el Chatbot
               </h4>
               <p style={{ margin: '4px 0 0 0', fontFamily: "'Inter', sans-serif", fontSize: '0.9rem', color: '#2c2018' }}>
-                <strong>{(mostAskedPoint as any).name}</strong> lidera el interés público con <strong style={{ color: '#d1562b', fontSize: '1.05rem' }}>{maxQueries} preguntas</strong> directas a nuestra Inteligencia Artificial.
+                <strong>{mostAskedPoint && 'name' in mostAskedPoint ? (mostAskedPoint as { name: string }).name : ''}</strong> lidera el interés público con <strong style={{ color: '#d1562b', fontSize: '1.05rem' }}>{maxQueries} preguntas</strong> directas a nuestra Inteligencia Artificial.
               </p>
             </div>
           </div>
@@ -871,7 +871,7 @@ const PlacesStatsModal = ({ onClose }: PlacesStatsModalProps) => {
                 ].map(m => (
                   <button
                     key={m.key}
-                    onClick={() => setChartMetric(m.key as any)}
+                    onClick={() => setChartMetric(m.key as 'places' | 'weekly' | 'monthly')}
                     style={{
                       flex: 1,
                       padding: '8px 6px',

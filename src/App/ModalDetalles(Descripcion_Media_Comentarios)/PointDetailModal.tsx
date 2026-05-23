@@ -53,7 +53,7 @@ const CassettePlayer = ({ podcast }: { podcast: { url: string, title?: string } 
     }
   };
 
-  const handleError = (_e: React.SyntheticEvent<HTMLAudioElement, Event>) => {
+  const handleError = () => {
     // Solo reintentar una vez para evitar bucle infinito de errores
     if (retryCountRef.current < 1 && audioRef.current) {
       retryCountRef.current += 1;

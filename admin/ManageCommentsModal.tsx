@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useAppContext } from '../src/context/AppContext';
 import './AdminAuthModal.css';
 
@@ -6,25 +5,30 @@ interface ManageCommentsModalProps {
   onClose: () => void;
 }
 
+interface FlatComment {
+  id: string;
+  author: string;
+  email?: string;
+  text: string;
+  date: string;
+  likes?: number;
+  placeName: string;
+  pointId: string;
+}
+
 const ManageCommentsModal = ({ onClose }: ManageCommentsModalProps) => {
   const { points, deleteComment } = useAppContext();
-  const [allComments, setAllComments] = useState<any[]>([]);
 
-  useEffect(() => {
-    // Aplanar los comentarios de todos los puntos en un solo array
-    const flattened = points.flatMap(point => 
+  // Derivar directamente sin almacenar en estado (evita setState en efecto)
+  const allComments: FlatComment[] = points
+    .flatMap(point =>
       point.comments.map(comment => ({
         ...comment,
         placeName: point.name,
         pointId: point.id
       }))
-    );
-    
-    // Ordenar por fecha (más recientes primero)
-    flattened.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    
-    setAllComments(flattened);
-  }, [points]);
+    )
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const handleDelete = async (pointId: string, commentId: string) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este comentario permanentemente de la nube?')) {

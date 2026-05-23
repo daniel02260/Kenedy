@@ -195,8 +195,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           setPoints(prevPoints =>
             prevPoints.map(point => {
               const liveCommentsForPoint = data
-                .filter((c: any) => c.point_id === point.id)
-                .map((c: any) => ({
+                .filter((c: { point_id: string; id: string; author: string; email: string; text: string; created_at: string; likes: number }) => c.point_id === point.id)
+                .map((c: { point_id: string; id: string; author: string; email: string; text: string; created_at: string; likes: number }) => ({
                   id: c.id,
                   author: c.author,
                   email: c.email,

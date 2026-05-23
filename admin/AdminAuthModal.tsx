@@ -26,14 +26,6 @@ const AdminAuthModal = ({ onSuccess, onClose }: AdminAuthModalProps) => {
 
     if (view === 'login') {
       const trimmedEmail = email.toLowerCase().trim();
-      const isMaster = email.trim() !== '' && password === 'kennedy2026';
-
-      // 1. Verificación rápida de la clave maestra histórica para evitar bloqueos
-      if (isMaster) {
-        setIsLoading(false);
-        onSuccess();
-        return;
-      }
 
       try {
         // 2. Consulta en vivo en la tabla de Supabase

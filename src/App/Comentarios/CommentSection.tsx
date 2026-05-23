@@ -1,4 +1,4 @@
-import { useState, useEffect, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import './CommentSection.css';
 
@@ -13,19 +13,11 @@ const CommentSection = ({ pointId }: CommentSectionProps) => {
 
   const [newComment, setNewComment] = useState('');
   const [authorName, setAuthorName] = useState('');
-  const [authorEmail, setAuthorEmail] = useState('');
-  const [savedEmail, setSavedEmail] = useState('');
+  const [savedEmail, setSavedEmail] = useState(() => localStorage.getItem('kennedy_user_email') || '');
+  const [authorEmail, setAuthorEmail] = useState(() => localStorage.getItem('kennedy_user_email') || '');
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingCommentText, setEditingCommentText] = useState('');
   const [dataTreatment, setDataTreatment] = useState(false);
-
-  useEffect(() => {
-    const email = localStorage.getItem('kennedy_user_email');
-    if (email) {
-      setSavedEmail(email);
-      setAuthorEmail(email); // Precargar email si existe
-    }
-  }, []);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
